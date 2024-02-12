@@ -1,0 +1,28 @@
+{% extends "app_general/base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+<title>เข้าสู่ระบบ</title>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <h2 class="card-title">เข้าสู่ระบบ</h2>
+          <form method="POST" autocomplete="off">
+            {% csrf_token %}
+            {{ loginform|crispy }}
+            <div class="form-group">
+              <button type="submit" class="btn btn-success btn-block">เข้าสู่ระบบ</button>
+            </div>
+          </form>
+          <p class="text-center">ยังไม่มีบัญชี? <a href="{% url 'register' %}">สร้างบัญชีใหม่</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

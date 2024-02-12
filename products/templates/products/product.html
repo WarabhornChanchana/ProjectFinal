@@ -1,0 +1,50 @@
+{% extends "app_general/base.html" %}
+
+{% block title %}
+<title>สินค้า</title>
+{% endblock %}
+
+{% block content %}
+  
+  <section class="hero-section" style="background-image: url('path_to_hero_image.jpg');">
+    <div class="container text-center">
+      <br>
+      <h1>Welcome to Online Market Place</h1>
+      {% comment %} <a href="/authenticate/login" class="btn btn-primary">Shop Now</a> {% endcomment %}
+    </div>
+  </section>
+<br>
+<button onclick="location.href='{% url 'addproducts' %}'" class="btn btn-primary">เพิ่มสินค้าใหม่</button>
+<div class="container mt-4">
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        {% for product in products %}
+        <div class="col">
+            <div class="card">
+                {% if product.product_cover %}
+                <img src="{{ product.product_cover.url }}" class="card-img-top" alt="{{ product.name }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.descriptions }}</p>
+
+                    <div class="mt-auto">
+                        <button onclick="location.href='{% url 'editProducts' product.id %}'" class="btn btn-primary">แก้ไข</button>
+                        
+                        <button onclick="confirmDelete(this)" data-product-id="{{ product.id }}" class="btn btn-danger">ลบ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function confirmDelete(element) {
+        var productId = element.getAttribute('data-product-id');
+        if (confirm("คุณแน่ใจที่จะลบสินค้านี้?")) {
+            location.href = '{% url "deleteProducts" 0 %}'.replace('/0/', '/' + productId + '/');
+        }
+    }
+</script>
+{% endblock %}
