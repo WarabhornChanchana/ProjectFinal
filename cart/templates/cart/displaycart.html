@@ -1,0 +1,44 @@
+{% extends "app_general/base.html" %} {% block title %}
+<title>ตะกร้าสินค้า</title>
+{% endblock %} {% block content %}
+
+<br />
+<div class="container mt-4">
+  <div class="row row-cols-1 row-cols-md-2 g-4">
+    {% for cart_item in cart_items %}
+    <div class="col">
+      <div class="card">
+        {% if cart_item.product.product_cover %}
+        <img
+          src="{{ cart_item.product.product_cover.url }}"
+          class="card-img-top"
+          alt="{{ cart_item.product.name }}"
+        />
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">{{ cart_item.product.name }}</h5>
+          <p class="card-text">{{ cart_item.product.description }}</p>
+          <p class="card-text">Quantity: {{ cart_item.quantity }}</p>
+
+          <div class="mt-auto">
+            <!-- Add buttons for additional actions if needed -->
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  function confirmDelete(element) {
+    var productId = element.getAttribute("data-product-id");
+    if (confirm("คุณแน่ใจที่จะลบสินค้านี้?")) {
+      location.href = '{% url "deleteProducts" 0 %}'.replace(
+        "/0/",
+        "/" + productId + "/"
+      );
+    }
+  }
+</script>
+{% endblock %}

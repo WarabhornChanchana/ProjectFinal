@@ -65,18 +65,27 @@ crossorigin="anonymous"
 </style>
 </head>
 <body>
-<div class="navbar">
-  <div class="logo">Online Market Place</div>
-  <div>
-    <a href="{% url 'home' %}">หน้าแรก</a>
-    <a href="{% url 'history' %}">ประวัติการสั่งซื้อ</a>
-    {% if user.is_authenticated %}
-    <a href="{% url 'products' %}">สินค้า</a>
-    <a href="{% url 'logout' %}">ออกจากระบบ</a>
-    {%else%}
-    <a href="{% url 'login' %}">เข้าสู่ระบบ</a>
-    {% endif %}
+  <div class="navbar">
+    <div class="logo">Online Market Place</div>
+    <div>
+      <a href="{% url 'home' %}">หน้าแรก</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'products' %}">สินค้า</a>
+
+        <a href="{% url # %}">ตะกร้าสินค้า</a>
+        
+        {% if request.user.account.role == "customer" %}
+          <a href="{% url 'history' %}">ประวัติการสั่งซื้อ</a>
+        {% elif request.user.account.role == "admin" %}
+          <a href="{% url 'history' %}">ประวัติการขาย</a>
+        {% endif %}
+        <a href="{% url 'logout' %}">ออกจากระบบ</a>
+      {% else %}
+        <a href="{% url 'login' %}">เข้าสู่ระบบ</a>
+      {% endif %}
+    </div>
   </div>
+  
   <ul class="social-icons">
     <!-- Icons links -->
   </ul>

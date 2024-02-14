@@ -21,6 +21,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("app_general.urls")),
+    path("carts/", include("cart.urls")),
     path("products/", include("products.urls")),
     path('authenticate/',include('django.contrib.auth.urls')),
     path('authenticate/',include('authenticate.urls')),

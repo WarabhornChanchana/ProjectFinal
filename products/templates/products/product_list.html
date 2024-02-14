@@ -76,10 +76,10 @@
                         <h3>{{ product.name }}</h3>
                         <p>{{ product.description }}</p>
                         <p>ราคา: {{ product.price }} บาท</p>
-                        <form action="{% url 'addcart' product.id %}" method="post">
+                        {% comment %} <form action="{% url 'addcart' product.id %}" method="post"> {% endcomment %}
                             {% csrf_token %}
                             <input type="number" name="quantity" value="1" min="1" style="width: 60px;">
-                            <button type="submit" class="custom-button">เพิ่มสินค้าลงในตะกร้า</button>
+                            {% comment %} <button type="submit" class="custom-button">เพิ่มสินค้าลงในตะกร้า</button> {% endcomment %}
                         </form>
                     </div>
                 {% endfor %}

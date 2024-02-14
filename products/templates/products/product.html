@@ -93,7 +93,9 @@
     }
     
 </style>
-  
+
+
+
 <section class="hero-section" style="background-image: url('path_to_hero_image.jpg');">
     <div class="container text-center">
         <br>
@@ -102,7 +104,9 @@
 </section>
 <br>
 <div class="container mt-4">
+    {% if accounts.role == "admin" %}
     <button onclick="location.href='{% url 'addproducts' %}'" class="btn btn-primary mb-4">เพิ่มสินค้าใหม่</button>
+    {% endif %}
     <div class="container mt-4">
         <div class="row justify-content-center">
             {% for product in products %}
@@ -113,12 +117,31 @@
                 {% endif %}
                 <div class="card-body d-flex flex-column">
                     <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text">{{ product.price }}</p>
                     <p class="card-text">{{ product.descriptions }}</p>
                     <p class="card-text">เหลือจำนวน: {{ product.stock_quantity }} กิโลกรัม</p>
-                    <p class="card-text">{{ product.category.name }}</p>
+                    {% comment %} <p class="card-text">{{ product.category.name }}</p> {% endcomment %}
                     <div class="mt-auto">
+                        {% if accounts.role == "admin" %}
                         <button onclick="location.href='{% url 'editProducts' product.id %}'" class="btn btn-primary btn-sm">แก้ไข</button>
                         <button onclick="confirmDelete(this)" data-product-id="{{ product.id }}" class="btn btn-danger btn-sm">ลบ</button>
+                        {% endif %}
+
+                        {% if accounts.role == "customer" %}
+                        <form method="post" action="{% url 'cartdisplay' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <div class="input-group number-spinner">
+                              <button class="
+                          btn btn-outline-secondary" type="button" data-dir="dwn">-</button>
+                          <input type="text" class="form-control text-center number-spinner-input" value="1" name="quantity" id="qty-cart" />
+                          <button class="btn btn-outline-secondary" type="button" data-dir="up">+</button>
+                          
+                            </div>
+                            <button type="submit" class="btn btn-primary">เพิ่มสินค้าลงตะกร้า</button>
+                          </form>
+                        {% endif %}
+            
                     </div>
                 </div>
             </div>
@@ -134,6 +157,72 @@
             location.href = '{% url "deleteProducts" 0 %}'.replace('/0/', '/' + productId + '/');
         }
     }
+    document
+    .querySelectorAll(".number-spinner button")
+    .forEach(function (button) {
+      button.addEventListener("click", function () {
+        // Find the input element within the closest parent element with class "number-spinner"
+        var spinner = this.closest(".number-spinner");
+        var input = spinner.querySelector("input");
+
+        // Get the current value of the input element
+        var oldValue = parseInt(input.value.trim());
+        var newVal = 0;
+
+        // Determine whether the clicked button is an "up" or "down" button
+        if (this.getAttribute("data-dir") === "up") {
+          newVal = oldValue + 1;
+        } else {
+          newVal = oldValue > 1 ? oldValue - 1 : 1;
+        }
+
+        // Set the new value of the input element
+        input.value = newVal;
+      });
+    });
 </script>
 {% endblock %}
 
+{% comment %} <form method="post" action="{% url 'cartdisplay' %}">
+    {% csrf_token %}
+    <input type="hidden" name="product_id" value="{{ product.id }}" />
+    <div class="input-group number-spinner">
+      <button
+        class="btn btn-outline-secondary"
+        type="button"
+        data-dir="dwn"
+      >
+        -
+      </button>
+      <input
+        type="text"
+        class="form-control text-center number-spinner-input"
+        value="1"
+        name="quantity"
+        id="qty-cart"
+      />
+      <button
+        class="btn btn-outline-secondary"
+        type="button"
+        data-dir="up"
+      >
+        +
+      </button>
+    </div>
+    <div class="mt-auto">
+      <button
+        onclick="location.href='{% url 'editProducts' product.id %}'"
+        class="btn btn-primary"
+      >
+        แก้ไข
+      </button>
+      <button
+        onclick="confirmDelete(this)"
+        data-product-id="{{ product.id }}"
+        class="btn btn-danger"
+      >
+        ลบ
+      </button>
+      <button type="submit" class="btn btn-primary">Add to Cart</button>
+    </div>
+  </form> {% endcomment %}
