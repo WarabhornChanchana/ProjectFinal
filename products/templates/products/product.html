@@ -91,6 +91,20 @@
     .btn:hover {
         opacity: 0.8;
     }
+
+    .btn-custom-green {
+        background-color: #28a745; /* หรือสีเขียวที่คุณต้องการ */
+        color: white; /* สีของข้อความ */
+        border: none; /* ไม่มีเส้นขอบ */
+        padding: 8px 12px; /* ขนาดพื้นที่รอบขอบ */
+        border-radius: 5px; /* ขอบมน */
+        cursor: pointer; /* เมาส์เปลี่ยนเป็นมือเมื่อชี้ */
+        transition: background-color 0.3s; /* เพิ่มเอฟเฟกต์การเปลี่ยนสี */
+    }
+    
+    .btn-custom-green:hover {
+        background-color: #218838; /* สีเขียวที่เข้มขึ้นเมื่อ hover */
+    }
     
 </style>
 
@@ -102,6 +116,16 @@
         <h1>Welcome to Online Market Place</h1>
     </div>
 </section>
+
+<form method="get" action="{% url 'product_search' %}" class="mb-4">
+    <div class="input-group">
+        <input type="text" class="form-control" name="q" placeholder="Search for products...">
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit">Search</button>
+        </div>
+    </div>
+</form>
+
 <br>
 <div class="container mt-4">
     {% if accounts.role == "admin" %}
@@ -135,10 +159,9 @@
                               <button class="
                           btn btn-outline-secondary" type="button" data-dir="dwn">-</button>
                           <input type="text" class="form-control text-center number-spinner-input" value="1" name="quantity" id="qty-cart" />
-                          <button class="btn btn-outline-secondary" type="button" data-dir="up">+</button>
-                          
+                          <button class="btn btn-outline-secondary" type="button" data-dir="up">+</button>                         
                             </div>
-                            <button type="submit" class="btn btn-primary">เพิ่มสินค้าลงตะกร้า</button>
+                            <button type="submit" class="btn btn-custom-green">เพิ่มสินค้าลงตะกร้า</button>
                           </form>
                         {% endif %}
             

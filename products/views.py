@@ -53,9 +53,15 @@ def product_list(request):
         except Account.DoesNotExist:
             pass
     product = Product.objects.all()
-    return render(request,'products/product_list.html',{'products':product,'accounts':account})
+    return render(request,'products/product.html',{'products':product,'accounts':account})
 
+from django.shortcuts import render
+from .models import Product
 
+def product_search(request):
+    query = request.GET.get('q', '')
+    products = Product.objects.filter(name__icontains=query)  # Adjust the filter according to your needs
+    return render(request, 'products/product.html', {'products': products})
 
 # from django.shortcuts import redirect
 
