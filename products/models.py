@@ -1,5 +1,6 @@
 from django.db import models
-
+from django.conf import settings
+from django.db import models
 # Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=255)
@@ -28,6 +29,16 @@ class Picture(models.Model):
     def __str__(self):
         return f"Picture {self.id} for Product {self.product.name}"
 
-    
+# class Cart(models.Model):
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cart')
+#     # 
+#     # updated_at = models.DateTimeField(auto_now=True)
+#     # created_at = models.DateTimeField(default=None)
+#     # updated_at = models.DateTimeField(default=None)
+
+# class Cart(models.Model):
+#     user = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+#     product = models.ForeignKey('Product', on_delete=models.CASCADE)
+#     quantity = models.IntegerField(default=1)
 
 

@@ -12,12 +12,17 @@
       <div class="card">
         <div class="card-body">
           <h2 class="card-title">ยืนยัน</h2>
-          <form method="POST" autocomplete="off" enctype="multipart/form">
+          <form method="POST" autocomplete="off" enctype="multipart/form-data">
             {% csrf_token %}
             {{ productform|crispy }}
+            <select class="form-select" aria-label="Default select example" name="cat">
+              {% for cat in categorys %}
+              <option>{{cat.name}}</option>
+              {% endfor %}
+            </select>
             <div class="form-group">
               <button type="submit" class="btn btn-success btn-block">ยืนยัน</button>
-              <!-- ปุ่มกลับไปยังหน้ารายการสินค้า -->
+    
               <a href="{% url 'products' %}" class="btn btn-secondary btn-block mt-2">กลับไปยังรายการสินค้า</a>
             </div>
           </form>

@@ -1,0 +1,126 @@
+{% extends "app_general/base.html" %}
+
+{% block content %}
+<div class="container">
+
+    <style>
+        .container {
+            margin-top: 20px;
+        }
+        
+        .products-list {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .product-item {
+            width: 200px;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        .product-item img {
+            width: 100%;
+            border-radius: 5px;
+        }
+        
+        .product-item h3 {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        
+        .product-item p {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .product-item button {
+            background-color: #04AA6D;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .product-item button:hover {
+            background-color: #04AA6D;
+        }
+        .custom-button {
+            display: inline-block;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            background-color: #04AA6D;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .custom-button:hover {
+            background-color: #04AA6D;
+        }
+        </style>
+        
+            <h1>สินค้าของเรา</h1>
+            <div class="products-list">
+                {% for product in products %}
+                    <div class="product-item">
+                        <img src="{{ product.product_cover.url }}" alt="{{ product.name }}">
+                        <h3>{{ product.name }}</h3>
+                        <p>{{ product.description }}</p>
+                        <p>ราคา: {{ product.price }} บาท</p>
+                        <form action="{% url 'addcart' product.id %}" method="post">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" value="1" min="1" style="width: 60px;">
+                            <button type="submit" class="custom-button">เพิ่มสินค้าลงในตะกร้า</button>
+                        </form>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>    
+    <script>
+    function addToCart(event, productId) {
+        event.preventDefault(); // ป้องกันการ submit ฟอร์มแบบปกติ
+        var quantity = event.target.quantity.value; // ดึงค่าจำนวนที่ต้องการเพิ่ม
+    
+        $.ajax({
+            url: '/products/addcart/' + productId + '/',
+            type: 'POST',
+            data: {
+                'quantity': quantity,
+                'csrfmiddlewaretoken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                console.log('Product added to cart successfully!');
+                // อัพเดต UI หรือแสดงข้อความยืนยันที่นี่
+            },
+            error: function(xhr, errmsg, err) {
+                console.log('Failed to add product to cart');
+            }
+        });
+    }
+
+    function addToCart(productId) {
+
+        $.ajax({
+            url: '/products/addcart/' + productId + '/',
+            type: 'GET',
+            success: function(response) {
+                console.log('Product added to cart successfully!');
+            },
+            error: function(xhr, errmsg, err) {
+                console.log('Failed to add product to cart');
+            }
+        });
+    }
+    </script>    
+
+{% endblock %}
+
