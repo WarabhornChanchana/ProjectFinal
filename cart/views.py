@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect
 from .models import Cart, Account, Product  # Make sure to import the necessary models
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.views.decorators.http import require_POST
-
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Cart
 
 def cartdisplay(request):
     if request.method == 'POST':
@@ -32,12 +32,6 @@ def cartdisplay(request):
             item.total_price = item.quantity * item.product.price
         return render(request, 'cart/displaycart.html', {'cart_items': cart_items})
 
-
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Cart
-
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Cart
 
 def remove_single_from_cart(request, product_id):
     cart = Cart.objects.filter(account__user=request.user).first()

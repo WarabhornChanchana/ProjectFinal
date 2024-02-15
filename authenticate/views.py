@@ -5,9 +5,9 @@ from django.contrib.auth.models import auth
 from formtools.wizard.views import SessionWizardView
 
 
-class RegistrationWizard(SessionWizardView):
-    form_list = [RegisterForm,AddressForm]
-    template_name = "authenticate/register.html"
+class RegistrationWizard(SessionWizardView): #เป็นคลาสที่มาจากการลงทะเบีบนของผู้ใช้งาน
+    form_list = [RegisterForm,AddressForm] #ฟอร์มแต่ละขั้นตอน
+    template_name = "authenticate/register.html" 
 
     def done(self, form_list, **kwargs):
         user_form = form_list[0]
@@ -22,7 +22,6 @@ class RegistrationWizard(SessionWizardView):
         role = user_form.cleaned_data['role']
         account = Account.objects.create(user=user, phone_number=phone_number, role=role)
 
-        # Save address information
         address = address_form.save(commit=False)
         address.account = account
         address.save()
