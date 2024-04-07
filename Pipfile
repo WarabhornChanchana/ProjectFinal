@@ -7,6 +7,8 @@ name = "pypi"
 django = "*"
 mysql-connector-python = "*"
 python-dotenv = "*"
+django-crispy-forms = "*"
+crispy-bootstrap5 = "*"
 
 [dev-packages]
 bpython = "*"

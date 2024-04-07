@@ -1,126 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Home Page</title>
-<style>
-  /* Your CSS styles here */
-</style>
-</head>
-<body>
-
-<!-- Navbar -->
 {% extends "app_general/base.html" %}
-{% load static %}
-
-{% block title %}
-<title>Home Page</title>
-{% endblock title %}
-
-{% block extra_css %}
-<!-- Optional: Add extra stylesheet links or styles here -->
-<style>
-  html,body,h1,h2,h3,h4 {font-family:"Lato", sans-serif}
-  .mySlides {display:none}
-  .w3-tag, .fa {cursor:pointer}
-  .w3-tag {height:15px;width:15px;padding:0;margin-top:6px}
-</style>
-{% endblock extra_css %}
 
 {% block content %}
-</head>
-<body>
-
-<!-- Content -->
-<div class="w3-content" style="max-width:1100px;margin-top:80px;margin-bottom:80px">
-  <div class="w3-panel">
-    <h1><b>Online Market Place</b></h1>
-  </div>
-
-  <!-- Slideshow -->
-  <div class="w3-container">
-    <div class="w3-display-container mySlides">
-      <img src="media\product_pictures\home2.jpg" style="width: 120%; height: auto;">
-      <div class="w3-display-topleft w3-container w3-padding-32">
-        <span class="w3-white w3-padding-large w3-animate-bottom">Welcome to Our Online Market!</span>
-      </div>
-    </div>
-    <div class="w3-display-container mySlides">
-      <img src="media\product_pictures\home2.jpg" style="width: 120%; height: auto;">
-      <div class="w3-display-middle w3-container w3-padding-32">
-        <span class="w3-white w3-padding-large w3-animate-bottom">Discover Amazing Products!</span>
-      </div>
-    </div>
-    <div class="w3-display-container mySlides">
-      <img src="media\product_pictures\home2.jpg" style="width: 120%; height: auto;">
-      <div class="w3-display-topright w3-container w3-padding-32">
-        <span class="w3-white w3-padding-large w3-animate-bottom">Shop with Confidence!</span>
-      </div>
-    </div>
-
-    <!-- Slideshow next/previous buttons -->
-    <div class="w3-container w3-dark-grey w3-padding w3-xlarge">
-      <div class="w3-left" onclick="plusDivs(-1)"><i class="fa fa-arrow-circle-left w3-hover-text-teal"></i></div>
-      <div class="w3-right" onclick="plusDivs(1)"><i class="fa fa-arrow-circle-right w3-hover-text-teal"></i></div>
+<div class="container mt-5">
+    <h2>Online Market Place</h2>
+    <!-- เพิ่มปุ่มนี้ -->
+    <a href="{% url 'add_slide' %}" class="btn btn-success mb-4">เพิ่มรูปภาพสไลด์</a>
     
-      <div class="w3-center">
-        <span class="w3-tag demodots w3-border w3-transparent w3-hover-white" onclick="currentDiv(1)"></span>
-        <span class="w3-tag demodots w3-border w3-transparent w3-hover-white" onclick="currentDiv(2)"></span>
-        <span class="w3-tag demodots w3-border w3-transparent w3-hover-white" onclick="currentDiv(3)"></span>
-      </div>
+    <div class="w3-panel">
+        <h1><b>สไลด์โชว์</b></h1>
     </div>
-  </div>
 
-<!-- "To the top" button and contact section -->
-<footer class="w3-container w3-padding-32 w3-light-grey w3-center" style="margin-top: 20px;">
-  <h3>ติดต่อเรา</h3>
-  <div class="w3-xlarge w3-section">
-      <a href="https://www.facebook.com/YourPage" class="w3-hover-opacity" target="_blank" style="text-decoration: none; color: #3b5998; margin-right: 20px;"><i class="fa fa-facebook-official"></i> Facebook</a>
-      <br/>
-      <a href="https://line.me/R/ti/p/~YourLineID" class="w3-hover-opacity" target="_blank" style="text-decoration: none; color: #00b900; margin-left: 20px;"><i class="fa fa-line-official"></i> Line</a>
-      <!-- เปลี่ยน YourLineID เป็น ID ของ Line ของคุณ -->
-  </div>
-</footer>
-
+    <div class="w3-container">
+      {% for slide in slides %}
+      <div class="w3-display-container mySlides">
+          <img src="{{ slide.image.url }}" style="width:100%">
+          <div class="w3-display-topleft w3-container w3-padding-32">
+              <span class="w3-white w3-padding-large w3-animate-bottom">{{ slide.caption }}</span>
+          </div>
+      </div>
+      {% endfor %}
+    </div>
+</div>
 
 <script>
-  function scrollToTop() {
-      window.scrollTo({top: 0, behavior: 'smooth'});
-  }
-  
-  // Slideshow
-  var slideIndex = 1;
-  showDivs(slideIndex);
-  
-  function plusDivs(n) {
-      showDivs(slideIndex += n);
-  }
-  
-  function currentDiv(n) {
-      showDivs(slideIndex = n);
-  }
-  
-  function showDivs(n) {
-      var i;
-      var x = document.getElementsByClassName("mySlides");
-      var dots = document.getElementsByClassName("demodots");
-      if (n > x.length) {slideIndex = 1}    
-      if (n < 1) {slideIndex = x.length} ;
-      for (i = 0; i < x.length; i++) {
-          x[i].style.display = "none";  
-      }
-      for (i = 0; i < dots.length; i++) {
-          dots[i].className = dots[i].className.replace(" w3-white", "");
-      }
-      x[slideIndex-1].style.display = "block";  
-      dots[slideIndex-1].className += " w3-white";
-  }
-  </script>
-
-</body>
-</html>
-{% endblock content %}
-
-
-
+    let slideIndex = 0;
+    function showSlides() {
+        let slides = document.getElementsByClassName("mySlides");
+        for (let i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";  
+        }
+        slideIndex++;
+        if (slideIndex > slides.length) {slideIndex = 1}
+        slides[slideIndex-1].style.display = "block";  
+        setTimeout(showSlides, 3000);
+    }
+    window.onload = function() {
+        showSlides();
+    }
+</script>
+{% endblock %}

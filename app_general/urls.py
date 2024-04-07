@@ -1,10 +1,13 @@
 from django.urls import path
+from . import views
+from django.conf.urls.static import static
+from django.conf import settings
 
-from app_general import views
+from django.urls import path
+from . import views
 
 urlpatterns = [
-    path("", views.home, name="home"),
-    path("history", views.history, name="history"),
-]
-
-MEDIA_URL = '/media/'
+    path('', views.home, name='home'),
+    path('history/', views.history, name='history'),
+    path('add_slide/', views.add_slide, name='add_slide'), # ตรวจสอบให้แน่ใจว่า URL นี้ถูกต้อง
+]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

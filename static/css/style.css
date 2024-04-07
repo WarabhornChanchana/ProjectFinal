@@ -1,0 +1,36 @@
+body, h1, h2, h3, h4 {
+    font-family: 'Lato', sans-serif;
+  }
+  
+  .mySlides {
+    display: none;
+    position: relative;
+  }
+  
+  .w3-display-container img {
+    width: 100%;
+    border-radius: 8px; /* เพิ่มมุมโค้ง */
+  }
+  
+  .w3-display-topleft, .w3-display-middle, .w3-display-topright {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    padding: 20px;
+    background-color: rgba(0,0,0,0.5); /* ทำให้ข้อความโดดเด่นขึ้น */
+  }
+  
+  .w3-display-topleft {
+    left: 20px;
+  }
+  
+  .w3-display-middle {
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .w3-display-topright {
+    right: 20px;
+  }
+  
