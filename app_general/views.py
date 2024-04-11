@@ -3,10 +3,10 @@ from django.http.response import HttpResponse
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from .models import Slide # ตรวจสอบให้แน่ใจว่านำเข้า model Slide จากแอพของคุณ
+from .models import Slide
 
 def home(request):
-    slides = Slide.objects.all() # ดึงข้อมูลรูปภาพทั้งหมดจากฐานข้อมูล
+    slides = Slide.objects.all()
     return render(request, 'app_general/home.html', {'slides': slides})
 
 

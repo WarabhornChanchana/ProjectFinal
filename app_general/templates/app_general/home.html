@@ -1,41 +1,148 @@
 {% extends "app_general/base.html" %}
 
+{% block extra_css %}
+<style>
+  /* ใส่สไตล์ของสไลด์โชว์ที่นี่ */
+  .mySlides {
+      display: none;
+      width: 100%;
+      height: auto;
+  }
+  
+  /* ทำให้ข้อความ caption ดูดี */
+  .caption {
+      color: #fff;
+      font-size: 15px;
+      padding: 8px 12px;
+      position: absolute;
+      bottom: 8px;
+      width: 100%;
+      text-align: center;
+  }
+  
+  /* ตัวเลขข้อความในแต่ละสไลด์ */
+  .numbertext {
+      color: #f2f2f2;
+      font-size: 12px;
+      padding: 8px 12px;
+      position: absolute;
+      top: 0;
+  }
+  
+  /* ปุ่มถัดไปและก่อนหน้า */
+  .prev, .next {
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      width: auto;
+      margin-top: -22px;
+      padding: 16px;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+      transition: 0.6s ease;
+      border-radius: 0 3px 3px 0;
+      user-select: none;
+  }
+  
+  /* ตำแหน่งปุ่มก่อนหน้า */
+  .prev {
+      left: 0;
+      border-radius: 3px 0 0 3px;
+  }
+  
+  /* ตำแหน่งปุ่มถัดไป */
+  .next {
+      right: 0;
+      border-radius: 3px 0 0 3px;
+  }
+  
+  /* สีพื้นหลังสำหรับปุ่ม hover */
+  .prev:hover, .next:hover {
+      background-color: rgba(0,0,0,0.8);
+  }
+  
+  /* จุดนำทางสไลด์ */
+  .dot {
+      cursor: pointer;
+      height: 15px;
+      width: 15px;
+      margin: 0 2px;
+      background-color: #bbb;
+      border-radius: 50%;
+      display: inline-block;
+      transition: background-color 0.6s ease;
+  }
+  
+  .active, .dot:hover {
+      background-color: #717171;
+  }
+  
+  /* การเปลี่ยนแปลงเมื่อเลื่อนสไลด์ */
+  .fade {
+      animation-name: fade;
+      animation-duration: 1.5s;
+  }
+  
+  @keyframes fade {
+      from {opacity: .4} 
+      to {opacity: 1}
+  }
+  
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-5">
-    <h2>Online Market Place</h2>
-    <!-- เพิ่มปุ่มนี้ -->
-    <a href="{% url 'add_slide' %}" class="btn btn-success mb-4">เพิ่มรูปภาพสไลด์</a>
-    
-    <div class="w3-panel">
-        <h1><b>สไลด์โชว์</b></h1>
-    </div>
+    {% if user.is_authenticated and user.account.role == "admin" %}
+    <a href="{% url 'add_slide' %}" class="btn btn-primary mb-3">เพิ่มรูปภาพสไลด์</a>
+    {% endif %}
 
-    <div class="w3-container">
-      {% for slide in slides %}
-      <div class="w3-display-container mySlides">
-          <img src="{{ slide.image.url }}" style="width:100%">
-          <div class="w3-display-topleft w3-container w3-padding-32">
-              <span class="w3-white w3-padding-large w3-animate-bottom">{{ slide.caption }}</span>
-          </div>
-      </div>
-      {% endfor %}
+    <div class="slide-show-container">
+        {% for slide in slides %}
+        <div class="mySlides fade">
+            <div class="numbertext">{{ forloop.counter }} / {{ slides|length }}</div>
+            <img src="{{ slide.image.url }}" style="width:100%">
+            <div class="caption">{{ slide.caption }}</div>
+        </div>
+        {% endfor %}
+        <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+        <a class="next" onclick="plusSlides(1)">&#10095;</a>
+    </div>
+    <br>
+    <div style="text-align:center">
+        {% for slide in slides %}
+        <span class="dot" onclick="currentSlide({{ forloop.counter }})"></span>
+        {% endfor %}
     </div>
 </div>
 
 <script>
-    let slideIndex = 0;
-    function showSlides() {
-        let slides = document.getElementsByClassName("mySlides");
-        for (let i = 0; i < slides.length; i++) {
-            slides[i].style.display = "none";  
-        }
-        slideIndex++;
-        if (slideIndex > slides.length) {slideIndex = 1}
-        slides[slideIndex-1].style.display = "block";  
-        setTimeout(showSlides, 3000);
+  let slideIndex = 1;
+  showSlides(slideIndex);
+  
+  function plusSlides(n) {
+    showSlides(slideIndex += n);
+  }
+  
+  function currentSlide(n) {
+    showSlides(slideIndex = n);
+  }
+  
+  function showSlides(n) {
+    let i;
+    let slides = document.getElementsByClassName("mySlides");
+    let dots = document.getElementsByClassName("dot");
+    if (n > slides.length) {slideIndex = 1}
+    if (n < 1) {slideIndex = slides.length}
+    for (i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
     }
-    window.onload = function() {
-        showSlides();
+    for (i = 0; i < dots.length; i++) {
+        dots[i].className = dots[i].className.replace(" active", "");
     }
+    slides[slideIndex-1].style.display = "block";
+    dots[slideIndex-1].className += " active";
+  }
 </script>
 {% endblock %}
