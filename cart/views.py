@@ -43,3 +43,4 @@ def remove_single_from_cart(request, product_id):
         cart_item.delete()  # ถ้าเหลือแค่ 1 ชิ้น ให้ลบสินค้าออกจากตะกร้า
 
     return redirect('cartdisplay')
+

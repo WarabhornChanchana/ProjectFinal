@@ -39,16 +39,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app_general.apps.AppGeneralConfig',
     'authenticate',
-    'crispy_forms',
-    'crispy_bootstrap5',
+    'crispy_forms',  # Ensure this is added
     'formtools',
     'products',
     'cart',
 ]
 
-CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_ALLOWED_TEMPLATE_PACKS = ('bootstrap', 'uni_form', 'bootstrap3', 'bootstrap4', 'bootstrap5')
 
-CRISPY_TEMPLATE_PACK = "bootstrap5"
+CRISPY_TEMPLATE_PACK = 'bootstrap5'
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
