@@ -3,6 +3,11 @@ from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
 from django.contrib.auth.models import User
 from . models import *
 from django.forms.widgets import PasswordInput,TextInput
+
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Submit
+from django import forms
+  
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
     role_choices = [('admin', 'Admin'), ('customer', 'Customer'), ('employee', 'Employee')]

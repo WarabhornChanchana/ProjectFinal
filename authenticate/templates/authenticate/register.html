@@ -1,6 +1,7 @@
 {% extends "app_general/base.html" %}
 {% load crispy_forms_tags %}
 {% load i18n %}
+{% load custom_filters %} 
 
 {% block head %}
 {{ wizard.form.media }}
@@ -10,9 +11,12 @@
 <div class="container mt-5">
   <div class="progress mb-3">
     <div class="progress-bar" role="progressbar" style="width: {{ wizard.steps.step1|multiply:100|div:wizard.steps.count }}%;" aria-valuenow="{{ wizard.steps.step1 }}" aria-valuemin="0" aria-valuemax="{{ wizard.steps.count }}">
-      {% blocktrans with step=wizard.steps.step1 and count=wizard.steps.count %}
+
+
+      {% blocktrans with step=wizard.steps.step1 count=wizard.steps.count %}
       Step {{ step }} of {{ count }}
       {% endblocktrans %}
+      
     </div>
   </div>
   <form action="" method="post">
