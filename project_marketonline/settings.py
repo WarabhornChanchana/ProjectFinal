@@ -46,9 +46,22 @@ INSTALLED_APPS = [
     'cart',
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# ตั้งค่า URL ที่จะนำไปเมื่อเข้าสู่ระบบหรือออกจากระบบ
+# LOGIN_URL = 'authenticate/login/'
+# LOGOUT_URL = 'authenticate/logout/'
+
+LOGIN_REDIRECT_URL = '/'
+
+# กำหนด URL ที่ต้องการให้ redirect หลังจาก logout
+LOGOUT_REDIRECT_URL = '/'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
-CRISPY_TEMPLATE_PACK = "bootstrap5"
+CRISPY_TEMPLATE_PACK = 'bootstrap5'
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -72,11 +85,21 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.template.context_processors.csrf',
+                'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
     },
 ]
+
+
+
+
 
 
 

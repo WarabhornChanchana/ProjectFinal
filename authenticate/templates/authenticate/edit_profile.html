@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>Edit Profile</title>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Edit Profile</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <!-- Account Form -->
+        {{ account_form.as_p }}
+        <!-- Address Form -->
+        {{ address_form.as_p }}
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</div>
+{% endblock %}

@@ -19,14 +19,19 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from django.urls import include, path
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("app_general.urls")),
     path("carts/", include("cart.urls")),
     path("products/", include("products.urls")),
-    path('authenticate/', include('django.contrib.auth.urls')),
-    path('authenticate/', include('authenticate.urls')),
+    # เลือกหนึ่งในสอง path ต่อไปนี้เท่าที่ถูกต้องตามความต้องการ
+    path('authenticate/', include('django.contrib.auth.urls')),  # ใช้ URL patterns จาก django.contrib.auth.urls
+    path('authenticate/', include('authenticate.urls')),  # หรือจะใช้ URL patterns จาก authenticate.urls ก็ได้
 ]
+
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

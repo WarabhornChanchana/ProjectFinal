@@ -35,18 +35,45 @@ def register(request):
 def login_user(request):
     form = LoginForm()
     if request.method == "POST":
-        form = LoginForm(request,data=request.POST)
+        form = LoginForm(data=request.POST)
         if form.is_valid():
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            user =  authenticate(request,username=username,password=password)
-            if user  is not None:
-                login(request,user)
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
                 return redirect('home')
     return render(request, 'authenticate/login.html', {'loginform': form})
-
-
 
 def logout_user(request):
     auth.logout(request)
     return redirect('home')
+
+from django.shortcuts import render, redirect
+from .forms import  AddressForm
+from django.contrib.auth.models import User
+from .models import Account, Address
+
+def edit_profile(request, pk):
+    account = Account.objects.get(pk=pk)
+    address_instance = account.address.first()  # Get the first address instance associated with the account
+
+    if request.method == 'POST':
+        account_form = ProfileForm(request.POST, instance=account)
+        address_form = AddressForm(request.POST, instance=address_instance)
+        
+        if account_form.is_valid() and address_form.is_valid():
+            account_form.save()
+            address_form.save()
+            return redirect('home')
+    else:
+        account_form = ProfileForm(instance=account)
+        address_form = AddressForm(instance=address_instance)
+
+    return render(request, 'edit_profile.html', {'account_form': account_form, 'address_form': address_form})
+
+
+
+
+
+

@@ -94,8 +94,15 @@
 
 {% block content %}
 <div class="container mt-5">
+    {% if user.is_authenticated %}
+        <h1>สวัสดี {{ user.username }}</h1>
+        <a href="{% url 'edit_profile' pk=1 %}">แก้ไขข้อมูลส่วนตัว</a>
+    {% else %}
+        <p>โปรด <a href="{% url 'login' %}">เข้าสู่ระบบ</a> เพื่อใช้งาน</p>
+    {% endif %}
+
     {% if user.is_authenticated and user.account.role == "admin" %}
-    <a href="{% url 'add_slide' %}" class="btn btn-primary mb-3">เพิ่มรูปภาพสไลด์</a>
+        <a href="{% url 'add_slide' %}" class="btn btn-primary mb-3">เพิ่มรูปภาพสไลด์</a>
     {% endif %}
 
     <div class="slide-show-container">
@@ -146,3 +153,4 @@
   }
 </script>
 {% endblock %}
+

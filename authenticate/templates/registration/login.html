@@ -14,11 +14,13 @@
           <h2 class="card-title">เข้าสู่ระบบ</h2>
           <form method="POST" autocomplete="off">
             {% csrf_token %}
-            {% crispy form %}
+            {{ form|crispy }}
             <div class="form-group">
               <button type="submit" class="btn btn-success btn-block">เข้าสู่ระบบ</button>
             </div>
           </form>
+          
+          
           <p class="text-center">ยังไม่มีบัญชี? <a href="{% url 'register' %}">สร้างบัญชีใหม่</a></p>
         </div>
       </div>

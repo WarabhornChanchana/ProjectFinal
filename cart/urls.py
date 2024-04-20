@@ -6,5 +6,6 @@ from django.conf import settings
 urlpatterns = [
     path("", views.cartdisplay, name="cartdisplay"),
     path('cart/remove_single/<int:product_id>/', views.remove_single_from_cart, name='remove_single_from_cart'),
+    path('checkout/', views.checkout, name='checkout'),
     
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
