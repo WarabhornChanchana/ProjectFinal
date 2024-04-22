@@ -13,31 +13,57 @@ from .models import Cart
 from products.models import Product
 from authenticate.models import Account
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.db.models import ObjectDoesNotExist
+from .models import Cart, CartItem
+from authenticate.models import Account
+from products.models import Product
+
 def cartdisplay(request):
+    try:
+        account = Account.objects.get(user=request.user)
+    except Account.DoesNotExist:
+        messages.error(request, "Account not found.")
+        return redirect('cartdisplay')
+
+    try:
+        cart = Cart.objects.get(account=account)
+    except Cart.DoesNotExist:
+        cart = Cart.objects.create(account=account)
+    except Cart.MultipleObjectsReturned:
+        # Handle the case where multiple carts are found
+        carts = Cart.objects.filter(account=account)
+        cart = carts.first()  # Choose the first cart if multiple are found
+
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
         quantity = int(request.POST.get('quantity', 1))
 
-        account = Account.objects.get(user=request.user)
-        product = Product.objects.get(id=product_id)
-        
         try:
-            cart = Cart.objects.get(account=account, product=product)
-            cart.quantity += quantity
-            cart.save()
-        except Cart.DoesNotExist:
-            cart = Cart.objects.create(account=account, product=product, quantity=quantity)
+            product = Product.objects.get(id=product_id)
+            cart_item = CartItem.objects.get(cart=cart, product=product)
+            cart_item.quantity += quantity
+            cart_item.save()
+        except Product.DoesNotExist:
+            messages.error(request, "Product not found.")
+        except CartItem.DoesNotExist:
+            cart_item = CartItem.objects.create(cart=cart, product=product, quantity=quantity)
 
-        return redirect('cart_display')
-    else:
-        account = Account.objects.get(user=request.user)
-        cart_items = Cart.objects.filter(account=account)
-        
-        total_price = 0
-        for item in cart_items:
-            item.total_price = item.quantity * item.product.price
-            total_price += item.total_price  # นับราคารวมสุทธิทั้งหมด
-        return render(request, 'cart/displaycart.html', {'cart_items': cart_items, 'total_price': total_price})
+        return redirect('cartdisplay')
+
+    cart_items = cart.cart_items.all() if cart else []
+    for item in cart_items:
+        item.total_price = item.quantity * item.product.price
+
+    total_price = sum(item.total_price for item in cart_items)
+
+    return render(request, 'cart/displaycart.html', {'cart_items': cart_items, 'total_price': total_price})
+
+
+
+
+
 
 
 
