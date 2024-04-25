@@ -28,6 +28,16 @@ class Picture(models.Model):
     descriptions = models.TextField(blank=True)
     def __str__(self):
         return f"Picture {self.id} for Product {self.product.name}"
+    
+from django.db import models
+
+class ShippingCost(models.Model):
+    shipping_company = models.CharField(max_length=100)
+    shipping_cost = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.shipping_company
+
 
 
 

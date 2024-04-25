@@ -17,17 +17,20 @@ def product(request):
 
 def addProduct(request):
     category = Category.objects.all()
-    if request.method=='POST':
-        form = AddproductForm(request.POST,request.FILES)
+    if request.method == 'POST':
+        form = AddproductForm(request.POST, request.FILES)
         cat = Category.objects.get(name=request.POST.get('cat'))
+        shipping_cost = request.POST.get('shipping_cost')  # ดึงข้อมูล shipping_cost จาก request.POST
         if form.is_valid():
             product_instance = form.save(commit=False)
             product_instance.category = cat
+            product_instance.shipping_cost = shipping_cost  # บันทึกข้อมูล shipping_cost ใน product_instance
             product_instance.save()
             return redirect('products')
     else:
         form = AddproductForm()
-    return render(request, 'products/addproduct.html',{'productform':form, 'categorys':category })
+    return render(request, 'products/addproduct.html', {'productform': form, 'categorys': category })
+
 
 def editProduct(request, pk):
     product = Product.objects.get(id=pk) 

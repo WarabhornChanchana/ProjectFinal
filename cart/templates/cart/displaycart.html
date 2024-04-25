@@ -1,11 +1,24 @@
 {% extends "app_general/base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>ตะกร้าสินค้าของคุณ</h2>
+<div class="container mt-4 text-center"> <!-- เพิ่ม class "text-center" เพื่อจัดตำแหน่งให้เป็นกลาง -->
+    <h2 style="font-size: 32px; font-weight: bold;">ตะกร้าสินค้าของคุณ</h2> <!-- ปรับขนาดและ font-weight ของข้อความ -->
     {% if cart_items %}
     <form id="cart-update-form" method="POST" action="{% url 'cartdisplay' %}">
         {% csrf_token %}
+        <!-- เพิ่มส่วนของฟอร์มเลือกรูปแบบการจัดส่ง -->
+        <br>
+        <div id="deliveryForm">
+            <label for="deliveryMethod">เลือกรูปแบบการจัดส่ง:</label>
+            <select id="deliveryMethod" name="deliveryMethod">
+                <option value="delivery">จัดส่งโดยขนส่ง</option>
+                <option value="pickup">มารับเองที่ร้าน</option>
+            </select>
+        </div>
+<br>
+        <!-- ส่วนของการแสดงผลค่าจัดส่ง -->
+        <div id="deliveryCost"></div>
+
         <div class="table-responsive">
             <table class="table table-bordered">
                 <thead>
@@ -26,6 +39,7 @@
                                 <div class="product-details">
                                     <p class="product-name">{{ item.product.name }}</p>
                                     <p class="product-id">ID: {{ item.product.id }}</p>
+                                    
                                 </div>
                             </div>
                         </td>
@@ -36,7 +50,6 @@
                         <td class="item-total-price" data-price="{{ item.total_price }}">{{ item.total_price }}</td>
                         <td>
                             <button class="btn btn-danger btn-sm remove-from-cart" data-item-id="{{ item.id }}">ลบสินค้า</button>
-
                         </td>
                     </tr>
                     {% endfor %}
@@ -48,13 +61,15 @@
                 ราคารวมสุทธิ: <span id="total-price" style="font-weight: bold;">{{ total_price }}</span> บาท
             </div>
             
-            
+            <!-- ส่วนของการแสดงผลค่าจัดส่ง -->
+            <div id="deliveryCost"></div>
 
-            <button type="submit" class="btn btn-success">ชำระเงิน</button>
+
+            <a href="{% url 'payment' %}">ชำระเงิน</a>
         </div>
     </form>
     {% else %}
-        <p>ตะกร้าสินค้าของคุณว่างเปล่า</p>
+    <p>ตะกร้าสินค้าของคุณว่างเปล่า</p>
     {% endif %}
 </div>
 {% endblock %}
@@ -88,43 +103,63 @@
 .item-total-price::before {
     content: '';
 }
-
 </style>
 {% endblock extra_css %}
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-$(document).ready(function() {
-    var totalPrice = 0;
-    $('.item-total-price').each(function() {
-        totalPrice += parseFloat($(this).attr('data-price')); // นับราคาที่มีอยู่ใน data-price
-    });
-    $('#total-price').text(totalPrice.toFixed(2)); // แสดงผลราคารวมสุทธิ
-});
+    function updateDeliveryCost() {
+    var deliveryMethod = document.getElementById('deliveryMethod').value;
+    var shippingCost = 0;  // ประกาศตัวแปร shippingCost เพื่อใช้เก็บค่าส่ง
 
-$(document).ready(function() {
-    $('.remove-from-cart').click(function() {
-        var item_id = $(this).data('item-id');
-        $.ajax({
-            url: '/cart/remove/',
-            type: 'POST',
-            data: {
-                item_id: item_id,
-                csrfmiddlewaretoken: '{{ csrf_token }}'
-            },
-            success: function(response) {
-                // Handle success response
-                console.log(response);
-            },
-            error: function(xhr, errmsg, err) {
-                // Handle error response
-                console.log(xhr.status + ": " + xhr.responseText);
-            }
+    if (deliveryMethod === 'delivery') {
+        // ให้ shippingCost เท่ากับค่าส่งของบริษัทขนส่งที่เลือก หรือคำนวณจากข้อมูลที่มีอยู่
+        shippingCost = 50;  // ตัวอย่างเท่ากับ 50 บาท
+    } else if (deliveryMethod === 'pickup') {
+        shippingCost = 0;  // ถ้าเลือกมารับเอง ค่าส่งเป็นศูนย์
+    }
+
+    // นำค่า shippingCost มาแสดงผลใน div ที่มี id deliveryCost
+    document.getElementById('deliveryCost').innerText = 'ค่าจัดส่ง: ' + shippingCost + ' บาท';
+
+    // คำนวณและแสดงราคารวมสุทธิใหม่ (รวมราคาสินค้า + ค่าจัดส่ง)
+    updateTotalPrice();
+}
+
+function updateTotalPrice() {
+    var totalPrice = 0;
+    var pricePerUnit = parseFloat(document.getElementById('pricePerUnit').innerText);
+    var quantity = parseInt(document.getElementById('quantity').value);
+    var shippingCost = parseFloat(document.getElementById('deliveryCost').innerText.split(':')[1]);
+
+    totalPrice = (pricePerUnit * quantity) + shippingCost;
+
+    document.getElementById('totalPrice').innerText = totalPrice.toFixed(2);
+}
+
+    
+    $(document).ready(function() {
+        $('#cart-update-form').submit(function(event) {
+            event.preventDefault(); // ป้องกันการ submit ฟอร์มอัตโนมัติ
+    
+            $.ajax({
+                url: $(this).attr('action'), // URL ที่ระบุใน action attribute ของฟอร์ม
+                type: 'POST',
+                data: $(this).serialize(), // รวมข้อมูลจากฟอร์มทั้งหมดเพื่อส่งไปยัง URL นั้น
+                success: function(response) {
+                    // กรณีสำเร็จในการส่งข้อมูลฟอร์ม
+                    console.log(response); // เพื่อ debug หรือดูข้อมูลที่ได้รับกลับ
+    
+                    // ให้เด้งไปยังหน้าชำระเงิน หากการส่งฟอร์มเสร็จสมบูรณ์
+                    window.location.href = '{% url 'payment' %}'; // เปลี่ยนไปยัง URL ของหน้า checkout ที่คุณต้องการ
+                },
+                error: function(xhr, errmsg, err) {
+                    // กรณีเกิดข้อผิดพลาดในการส่งข้อมูลฟอร์ม
+                    console.log(xhr.status + ": " + xhr.responseText);
+                    // แสดงข้อความผิดพลาดหรือปรับแก้ตามความเหมาะสม
+                }
+            });
         });
     });
-});
-
+    
 </script>
-
-
-
+    

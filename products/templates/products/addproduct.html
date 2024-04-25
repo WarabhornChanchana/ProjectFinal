@@ -15,14 +15,34 @@
           <form method="POST" autocomplete="off" enctype="multipart/form-data">
             {% csrf_token %}
             {{ productform|crispy }}
-            <select class="form-select" aria-label="Default select example" name="cat">
+            <select class="form-select mt-3" aria-label="Default select example" name="cat">
+              <option disabled selected>เลือกหมวดหมู่</option> <!-- เพิ่มตัวเลือกที่ไม่สามารถเลือกได้และถูกเลือกเป็นค่าเริ่มต้น -->
               {% for cat in categorys %}
               <option>{{cat.name}}</option>
               {% endfor %}
             </select>
-            <div class="form-group">
-              <button type="submit" class="btn btn-success btn-block">ยืนยัน</button>    
-              <a href="{% url 'products' %}" class="btn btn-secondary btn-block mt-2">กลับไปยังรายการสินค้า</a>
+            <div class="form-group mt-3">
+              <div class="form-group mt-3">
+                <label for="shipping_cost">ค่าจัดส่ง/กก.</label>
+                <input type="number" class="form-control" id="shipping_cost" name="shipping_cost" required step="0.01" min="0" max="1000">
+             </div>
+             
+              <style>
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .btn-equal-height {
+    height: 48px; /* ปรับความสูงตามที่ต้องการ */
+  }
+</style>
+
+<div class="button-container">
+  <a href="{% url 'products' %}" class="btn btn-secondary btn-lg btn-block mt-3 btn-equal-height">กลับไปยังรายการสินค้า</a>
+  <button type="submit" class="btn btn-success btn-lg btn-block btn-equal-height">ยืนยัน</button>
+</div>
+
             </div>
           </form>
         </div>
@@ -30,4 +50,5 @@
     </div>
   </div>
 </div>
+
 {% endblock %}

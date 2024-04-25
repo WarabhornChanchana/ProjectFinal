@@ -96,7 +96,9 @@
 <div class="container mt-5">
     {% if user.is_authenticated %}
         <h1>สวัสดี {{ user.username }}</h1>
+        {% if user.account.role == "customer" %}
         <a href="{% url 'edit_profile' pk=1 %}">แก้ไขข้อมูลส่วนตัว</a>
+    {% endif %}
     {% else %}
         <p>โปรด <a href="{% url 'login' %}">เข้าสู่ระบบ</a> เพื่อใช้งาน</p>
     {% endif %}
@@ -124,33 +126,58 @@
     </div>
 </div>
 
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  .slideshow-container {
+    max-width: 1000px;
+    position: relative;
+    margin: auto;
+  }
+
+  .mySlides {
+    display: none;
+    width: 100%;
+    height: auto;
+  }
+</style>
+</head>
+<body>
+
+<div class="slideshow-container">
+  <div class="mySlides">
+    <img src="image1.jpg" style="width:100%">
+  </div>
+
+  <div class="mySlides">
+    <img src="image2.jpg" style="width:100%">
+  </div>
+
+  <div class="mySlides">
+    <img src="image3.jpg" style="width:100%">
+  </div>
+</div>
+
 <script>
-  let slideIndex = 1;
-  showSlides(slideIndex);
-  
-  function plusSlides(n) {
-    showSlides(slideIndex += n);
-  }
-  
-  function currentSlide(n) {
-    showSlides(slideIndex = n);
-  }
-  
-  function showSlides(n) {
-    let i;
+  let slideIndex = 0;
+  showSlides();
+
+  function showSlides() {
     let slides = document.getElementsByClassName("mySlides");
-    let dots = document.getElementsByClassName("dot");
-    if (n > slides.length) {slideIndex = 1}
-    if (n < 1) {slideIndex = slides.length}
-    for (i = 0; i < slides.length; i++) {
-        slides[i].style.display = "none";
+    for (let i = 0; i < slides.length; i++) {
+      slides[i].style.display = "none";
     }
-    for (i = 0; i < dots.length; i++) {
-        dots[i].className = dots[i].className.replace(" active", "");
-    }
-    slides[slideIndex-1].style.display = "block";
-    dots[slideIndex-1].className += " active";
+    slideIndex++;
+    if (slideIndex > slides.length) { slideIndex = 1 }
+    slides[slideIndex - 1].style.display = "block";
+    setTimeout(showSlides, 2000); // เปลี่ยนทุก 2 วินาที
   }
 </script>
-{% endblock %}
+
+</body>
+</html>
+
+  {% endblock %}
 

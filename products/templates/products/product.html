@@ -160,6 +160,22 @@
           width: 100%;
       }
   }
+
+  /* Style for the add product button */
+.btn-add-product {
+    background-color: #28a745; /* Green color */
+    color: white;
+    border-radius: 20px;
+    padding: 10px 30px;
+    border: none;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.btn-add-product:hover {
+    background-color: #218838; /* Darker green color on hover */
+}
+
 </style>
 
 
@@ -170,7 +186,13 @@
             <button class="btn btn-outline-secondary" type="submit">Search</button>
         </form>
     </div>
-
+    <div>
+        {% if accounts.role == "admin" %}
+            <a href="{% url 'addproducts' %}" class="btn btn-add-product mt-3">เพิ่มสินค้า</a>
+        {% endif %}
+    </div>
+        <br>
+        <br>    
     <div class="row">
         {% for product in products %}
         <div class="col-md-4">
