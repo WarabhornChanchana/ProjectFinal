@@ -8,7 +8,8 @@
   <p>Transfer Time: {{ transfer_time }}</p>
   {% if payment_slip_url %}
   <p>Payment Slip:</p>
-  <img src="{{ payment_slip_url }}" alt="Payment Slip">
+  <img src="cid:payment_slip_image" alt="Payment Slip" />
+
   {% endif %}
 </body>
 </html>
