@@ -1,0 +1,14 @@
+<html>
+<head></head>
+<body>
+  <p>Dear {{ name }},</p>
+  <p>A new payment slip has been uploaded:</p>
+  <p>Amount: {{ amount }}</p>
+  <p>Phone: {{ phone }}</p>
+  <p>Transfer Time: {{ transfer_time }}</p>
+  {% if payment_slip_url %}
+  <p>Payment Slip:</p>
+  <img src="{{ payment_slip_url }}" alt="Payment Slip">
+  {% endif %}
+</body>
+</html>

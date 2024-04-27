@@ -9,6 +9,7 @@ urlpatterns = [
     path('payment/', views.upload_payment, name='payment'),
     path('success/', views.success_view, name='success'),
     path('payment-detail/<int:id>/', views.payment_detail, name='payment_detail'),
+    
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

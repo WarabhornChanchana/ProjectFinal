@@ -114,23 +114,42 @@ def upload_payment(request):
             new_payment = form.save()
             send_payment_notification(new_payment)  # ส่งอีเมลการแจ้งเตือน
             messages.success(request, 'Your payment slip has been uploaded successfully!')
-            return redirect('payment')  # Redirect กลับไปยังหน้าอัปโหลดเดิม
+            return redirect('success')  # Redirect กลับไปยังหน้าอัปโหลดเดิม
     else:
         form = PaymentUploadForm()
-    return render(request, 'cart/payment.html', {'form': form})
+    return render(request, 'cart/success.html', {'form': form})
 
 
 
-from django.core.mail import send_mail
-from django.conf import settings
-from django.urls import reverse
-
+# views.py
+from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from .models import PaymentUpload
+from django.core.mail import EmailMultiAlternatives
 def send_payment_notification(payment_upload):
-    subject = 'New Payment Slip Uploaded'
-    message = f"A new payment slip has been uploaded. Please review it here: https://myshop.com{reverse('payment_detail', args=[payment_upload.id])}"
-    email_from = settings.EMAIL_HOST_USER
-    recipient_list = ['fanyny.shop01@gmail.com']
-    send_mail(subject, message, email_from, recipient_list)
+    # ระบุ URL ของรูปภาพสลิปการชำระเงิน
+    payment_slip_url = payment_upload.payment_slip.url if payment_upload.payment_slip else None
+
+    # เรนเดอร์ HTML email template ด้วยข้อมูล
+    html_content = render_to_string('cart/emails/payment_notification.html', {
+        'name': payment_upload.name,
+        'payment_slip_url': payment_slip_url,  # make sure you define this variable before using it
+        'amount': payment_upload.amount,
+        'phone': payment_upload.phone,
+        'transfer_time': payment_upload.transfer_time.strftime('%H:%M %d-%m-%Y'),  # adjust the format as needed
+    })
+    text_content = strip_tags(html_content)  # สร้างเวอร์ชันข้อความธรรมดาจาก HTML
+
+    email = EmailMultiAlternatives(
+        subject='New Payment Slip Uploaded',
+        body=text_content,  # This is the text/plain part
+        from_email=settings.EMAIL_HOST_USER,
+        to=['fanyny.shop01@gmail.com']
+    )
+    email.attach_alternative(html_content, "text/html")  # Here's where you add the text/html part
+    email.send()
+
 
 # views.py
 from django.shortcuts import render, redirect

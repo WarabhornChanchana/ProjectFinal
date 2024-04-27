@@ -78,7 +78,7 @@ ROOT_URLCONF = 'project_marketonline.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # แน่ใจว่า 'templates' directory ได้ถูกเพิ่มที่นี่
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
