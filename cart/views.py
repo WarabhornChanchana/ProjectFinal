@@ -6,7 +6,6 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.views.decorators.http import require_POST
-from django.shortcuts import render, get_object_or_404, redirect
 from .models import Cart
 
 from django.shortcuts import render, redirect
@@ -101,68 +100,63 @@ def remove_from_cart(request):
     # If request method is not POST or not AJAX, return error response
     return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 
+from django.shortcuts import render, redirect
+from .forms import PaymentUploadForm
+from .models import PaymentUpload
+# from .views import send_payment_notification  # อย่าลืมนำเข้าฟังก์ชัน
 
-from django.conf import settings
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Cart, CartItem
-from products.models import Product
-from authenticate.models import Account
 from django.contrib import messages
-from django.http import JsonResponse
-from django.template.loader import render_to_string
-from django.core.mail import send_mail
-from django.utils.html import strip_tags
 
-from django.conf import settings
-from django.http import JsonResponse
-from django.shortcuts import render
-from django.template.loader import render_to_string
-from django.core.mail import send_mail
-from django.utils.html import strip_tags
-
-from django.http import JsonResponse
-from django.shortcuts import render
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
-from django.conf import settings
-
-def payment_view(request):
+def upload_payment(request):
     if request.method == 'POST':
-        # ตรวจสอบการโอนเงินและการแนบสลิป
-        if 'paymentSlip' in request.FILES:
-            # ดึงข้อมูลราคาสินค้าและค่าจัดส่งจากข้อมูลที่มีอยู่ เช่น request.POST หรือ request.session
-            total_price = 1000  # ตัวอย่างราคาสินค้ารวม
-            shipping_cost = 50  # ตัวอย่างค่าจัดส่ง
-            grand_total = total_price + shipping_cost
-
-            payment_slip = request.FILES['paymentSlip']
-
-            # บันทึกข้อมูลการโอนเงิน และแนบสลิป
-            # โค้ดการบันทึกข้อมูลจะอยู่ที่นี่
-
-            # ส่งอีเมลแจ้งเตือน
-            subject = 'แจ้งเตือนการโอนเงิน'
-            from_email = settings.EMAIL_HOST_USER
-            to_email = 'อีเมลของร้านค้า'
-            qr_code_url = 'URL ของ QR Code ที่ส่งมาจากลูกค้า'
-
-            # สร้างเนื้อหา HTML ของอีเมล
-            html_message = render_to_string('email/payment_notification.html', {'qr_code_url': qr_code_url})
-            plain_message = strip_tags(html_message)
-
-            send_mail(subject, plain_message, from_email, [to_email], html_message=html_message)
-            # ส่งอีเมลเสร็จแล้ว
-            return JsonResponse({'message': 'ส่งอีเมลเรียบร้อยแล้ว', 'total_price': grand_total})
-        else:
-            return JsonResponse({'error': 'กรุณาแนบสลิปการโอนเงิน'}, status=400)
+        form = PaymentUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            new_payment = form.save()
+            send_payment_notification(new_payment)  # ส่งอีเมลการแจ้งเตือน
+            messages.success(request, 'Your payment slip has been uploaded successfully!')
+            return redirect('payment')  # Redirect กลับไปยังหน้าอัปโหลดเดิม
     else:
-        # ดึงข้อมูลราคาสินค้าและค่าจัดส่งจากข้อมูลที่มีอยู่ เช่น request.POST หรือ request.session
-        total_price = 1000  # ตัวอย่างราคาสินค้ารวม
-        shipping_cost = 50  # ตัวอย่างค่าจัดส่ง
-        grand_total = total_price + shipping_cost
+        form = PaymentUploadForm()
+    return render(request, 'cart/payment.html', {'form': form})
 
-        return render(request, 'cart/payment.html', {'total_price': grand_total, 'shipping_cost': shipping_cost})
+
+
+from django.core.mail import send_mail
+from django.conf import settings
+from django.urls import reverse
+
+def send_payment_notification(payment_upload):
+    subject = 'New Payment Slip Uploaded'
+    message = f"A new payment slip has been uploaded. Please review it here: https://myshop.com{reverse('payment_detail', args=[payment_upload.id])}"
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = ['fanyny.shop01@gmail.com']
+    send_mail(subject, message, email_from, recipient_list)
+
+# views.py
+from django.shortcuts import render, redirect
+from .forms import PaymentUploadForm
+from .models import PaymentUpload
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
+from django.urls import reverse
+
+# ส่วนอื่นๆ ของ views.py ของคุณ...
+
+def success_view(request):
+    return render(request, 'cart/success.html')
+
+# views.py
+
+from django.shortcuts import get_object_or_404, render
+from .models import PaymentUpload
+
+def payment_detail(request, id):
+    payment = get_object_or_404(PaymentUpload, pk=id)
+    return render(request, 'cart/payment_detail.html', {'payment': payment})
+
+
+
 
 
 

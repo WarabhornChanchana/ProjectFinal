@@ -1,0 +1,15 @@
+{% extends "app_general/base.html" %}
+
+{% block content %}
+<div class="payment-detail-container">
+    <h1>Payment Details</h1>
+    <p><strong>Name:</strong> {{ payment.name }}</p>
+    <p><strong>Phone:</strong> {{ payment.phone }}</p>
+    <p><strong>Amount:</strong> {{ payment.amount }}</p>
+    <p><strong>Transfer Time:</strong> {{ payment.transfer_time }}</p>
+    <p><strong>Payment Slip:</strong></p>
+    <img src="{{ payment.payment_slip.url }}" alt="Payment Slip Image" />
+
+    <a href="{% url 'some_other_view' %}">Go back</a>
+</div>
+{% endblock %}

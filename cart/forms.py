@@ -1,11 +1,16 @@
 from django import forms
-from .models import Payment
+from .models import PaymentUpload
 
-class PaymentForm(forms.ModelForm):
+from django import forms
+from django.forms import DateTimeInput
+from .models import PaymentUpload
+
+class PaymentUploadForm(forms.ModelForm):
     class Meta:
-        model = Payment
-        fields = ['amount', 'payment_date']
+        model = PaymentUpload
+        fields = ['name', 'phone', 'amount', 'transfer_time', 'payment_slip']
+        widgets = {
+            'transfer_time': DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['payment_date'].widget.attrs['readonly'] = True  # ตั้งให้เขียนเพียงอ่านอย่างเดียว
+

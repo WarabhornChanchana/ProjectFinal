@@ -1,71 +1,23 @@
 {% extends "app_general/base.html" %}
-{% block content %}
-<form id="slipForm" method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    <label for="paymentSlip">แนบสลิปการโอนเงิน:</label>
-    <input type="file" id="paymentSlip" name="paymentSlip" accept="image/*" required>
-    <button type="submit">ส่งสลิป</button>
-</form>
-<div>
-    ราคารวมสุทธิ: <span id="total-price" style="font-weight: bold;">{{ total_price }}</span> บาท
-    <p id="shippingCost">ค่าจัดส่ง:</p>
-</div>
-{% endblock %}
-<script>
-    function updateDeliveryCost() {
-        var deliveryMethod = document.getElementById('deliveryMethod').value;
-        var shippingCost = 0;  // ประกาศตัวแปร shippingCost เพื่อใช้เก็บค่าส่ง
-    
-        if (deliveryMethod === 'delivery') {
-            // ให้ shippingCost เท่ากับค่าส่งของบริษัทขนส่งที่เลือก หรือคำนวณจากข้อมูลที่มีอยู่
-            shippingCost = 50;  // ตัวอย่างเท่ากับ 50 บาท
-        } else if (deliveryMethod === 'pickup') {
-            shippingCost = 0;  // ถ้าเลือกมารับเอง ค่าส่งเป็นศูนย์
-        }
-    
-        // นำค่า shippingCost มาแสดงผลใน div ที่มี id deliveryCost
-        document.getElementById('deliveryCost').innerText = 'ค่าจัดส่ง: ' + shippingCost + ' บาท';
-    
-        // คำนวณและแสดงราคารวมสุทธิใหม่ (รวมราคาสินค้า + ค่าจัดส่ง)
-        updateTotalPrice();
-    }
-    
-    function updateTotalPrice() {
-        var totalPrice = 0;
-        var pricePerUnit = parseFloat(document.getElementById('pricePerUnit').innerText);
-        var quantity = parseInt(document.getElementById('quantity').value);
-        var shippingCost = parseFloat(document.getElementById('deliveryCost').innerText.split(':')[1]);
-    
-        totalPrice = (pricePerUnit * quantity) + shippingCost;
-    
-        document.getElementById('totalPrice').innerText = totalPrice.toFixed(2);
-    }
-    
-    $(document).ready(function() {
-        $('#slipForm').submit(function(event) {
-            event.preventDefault(); // ป้องกันการ submit ฟอร์มอัตโนมัติ
-    
-            $.ajax({
-                url: $(this).attr('action'), // URL ที่ระบุใน action attribute ของฟอร์ม
-                type: 'POST',
-                data: new FormData(this), // ส่งข้อมูล form ผ่าน FormData object
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    // กรณีสำเร็จในการส่งข้อมูลฟอร์ม
-                    console.log(response); // เพื่อ debug หรือดูข้อมูลที่ได้รับกลับ
-    
-                    // ทำการจัดการตามที่ต้องการ เช่น แสดงข้อความผลลัพธ์หรือ redirect
-                },
-                error: function(xhr, errmsg, err) {
-                    // กรณีเกิดข้อผิดพลาดในการส่งข้อมูลฟอร์ม
-                    console.log(xhr.status + ": " + xhr.responseText);
-                    // แสดงข้อความผิดพลาดหรือปรับแก้ตามความเหมาะสม
-                }
-            });
-        });
-    });
-    </script>
-    
 
+{% block content %}
+    <h1>Upload Your Payment Slip</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.name.label_tag }} {{ form.name }}<br>
+        {{ form.phone.label_tag }} {{ form.phone }}<br>
+        {{ form.amount.label_tag }} {{ form.amount }}<br>
+        {{ form.transfer_time.label_tag }} {{ form.transfer_time }}<br>
+        {{ form.payment_slip.label_tag }} {{ form.payment_slip }}<br>
+        <button type="submit">Upload</button>
+    </form>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}
 

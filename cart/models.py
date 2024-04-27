@@ -40,13 +40,13 @@ class AdminOrder(models.Model):
 
 
 from django.db import models
-from django.contrib.auth.models import User
 
-class Payment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+class PaymentUpload(models.Model):
+    name = models.CharField(max_length=255)
+    phone = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    payment_date = models.DateTimeField(auto_now_add=True)
-    payment_time = models.TimeField(auto_now_add=True)  # เพิ่มฟิลด์เวลา
+    transfer_time = models.DateTimeField()
+    payment_slip = models.FileField(upload_to='paymentslips/')
 
     def __str__(self):
-        return f"Payment of {self.amount} by {self.user.username} on {self.payment_date} at {self.payment_time}"
+        return f"{self.name} ({self.transfer_time})"
