@@ -1,23 +1,133 @@
 {% extends "app_general/base.html" %}
-
+{% load static %}
 {% block content %}
-    <h1>Upload Your Payment Slip</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.name.label_tag }} {{ form.name }}<br>
-        {{ form.phone.label_tag }} {{ form.phone }}<br>
-        {{ form.amount.label_tag }} {{ form.amount }}<br>
-        {{ form.transfer_time.label_tag }} {{ form.transfer_time }}<br>
-        {{ form.payment_slip.label_tag }} {{ form.payment_slip }}<br>
-        <button type="submit">Upload</button>
-    </form>
+
+<style>
+    .container {
+        width: 100%;
+        max-width: 800px; /* หรือขนาดที่ต้องการ */
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #dedede;
+        border-radius: 10px;
+        background-color: #f9f9f9;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .qr-code-container, .form-container {
+        margin-bottom: 20px;
+    }
+
+    .qr-image-container {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .qr-image {
+        width: 200px; /* ปรับขนาดตามที่ต้องการ */
+        height: auto;
+        margin-bottom: 10px;
+    }
+
+    form {
+        margin: 20px 0;
+    }
+
+    .form-group {
+        margin-bottom: 10px;
+    }
+
+    .form-group label {
+        display: block;
+        text-align: left;
+        margin-bottom: 5px;
+    }
+
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    button[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #5cb85c;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #4cae4c;
+    }
+
+    .messages {
+        padding: 10px 0;
+        list-style: none;
+    }
+
+    .messages li {
+        background-color: #dff0d8;
+        color: #3c763d;
+        padding: 10px;
+        margin-bottom: 5px;
+        border-radius: 5px;
+    }
+</style>
+
+<div class="container">
+    <div class="qr-code-container">
+        <h2>ชำระเงินผ่านธนาคาร K-bank</h2>
+        <div class="account-info">
+            <p>ชื่อบัญชี: นางสาววราภรณ์ จันทร์ชนะ</p>
+            <p>เลขที่บัญชี: 059-848-6735</p>
+        </div>
+        <div class="qr-image-container">
+            <img src="{% static 'images/437749830_1852409578514023_8484477891297980859_n.jpg' %}" alt="QR Code for payment" style="width: 300px; height: auto;" />
+            <p>สแกน QR เพื่อโอนเงินทันที</p>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_name">ชื่อ-นามสกุล:</label>
+                {{ form.name }}
+            </div>
+            <div class="form-group">
+                <label for="id_phone">เบอร์โทรศัพท์:</label>
+                {{ form.phone }}
+            </div>
+            <div class="form-group">
+                <label for="id_amount">จำนวนเงิน:</label>
+                {{ form.amount }}
+            </div>
+            <div class="form-group">
+                <label for="id_transfer_time">เวลาโอน ตัวอย่าง * 24/04/2024 12:30 น.</label>
+                {{ form.transfer_time }}
+            </div>
+            <div class="form-group">
+                <label for="id_payment_slip">สลิปการชำระเงิน:</label>
+                {{ form.payment_slip }}
+            </div>
+            <button type="submit">อัพโหลด</button>
+        </form>
+    </div>
+    
 
     {% if messages %}
         <ul class="messages">
             {% for message in messages %}
-                <li class="{{ message.tags }}">{{ message }}</li>
+                <li>{{ message }}</li>
             {% endfor %}
         </ul>
     {% endif %}
-{% endblock %}
+</div>
 
+{% endblock %}

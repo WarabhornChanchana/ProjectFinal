@@ -1,13 +1,13 @@
 <html>
 <head></head>
 <body>
-    <p>Dear {{ name }},</p>
-    <p>A new payment slip has been uploaded:</p>
-    <p>Amount: {{ amount }}</p>
-    <p>Phone: {{ phone }}</p>
-    <p>Transfer Time: {{ transfer_time }}</p>
-    <p>Payment Slip:</p>
-    <!-- ที่นี่จะแสดงรูปภาพที่คุณแนบเข้ามาในอีเมล -->
+    <p>ชื่อ: {{ name }}</p>
+    <p>สลิปการชำระเงินได้ถูกอัปโหลดแล้ว:</p>
+    <p>จำนวนเงิน: {{ amount }}</p>
+    <p>เบอร์โทรศัพท์: {{ phone }}</p>
+    <p>เวลาโอน: {{ transfer_time }}</p>
+    <p>สลิปการชำระเงิน:</p>
+    <!-- แสดงรูปภาพที่แนบเข้ามาในอีเมล -->
     <img src="cid:payment_slip_image" alt="Payment Slip" />
 </body>
 </html>

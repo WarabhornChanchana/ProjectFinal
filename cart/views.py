@@ -100,13 +100,6 @@ def remove_from_cart(request):
     # If request method is not POST or not AJAX, return error response
     return JsonResponse({'success': False, 'error': 'Invalid request'}, status=400)
 
-from django.shortcuts import render, redirect
-from .forms import PaymentUploadForm
-from .models import PaymentUpload
-# from .views import send_payment_notification  # อย่าลืมนำเข้าฟังก์ชัน
-
-from django.contrib import messages
-
 def upload_payment(request):
     if request.method == 'POST':
         form = PaymentUploadForm(request.POST, request.FILES)
@@ -132,17 +125,27 @@ def send_payment_notification(payment_upload):
     recipient_list = ['fanyny.shop01@gmail.com']
     # สร้าง context ที่จะใช้ใน template
     context = {
-        'name': payment_upload.name,
-        'amount': payment_upload.amount,
-        'phone': payment_upload.phone,
-        'transfer_time': payment_upload.transfer_time.strftime('%H:%M %d-%m-%Y'),  # adjust the format as needed
-        # อาจไม่จำเป็นต้องใส่ payment_slip_url เนื่องจากคุณแนบรูปภาพแล้ว
+    'name': payment_upload.name,
+    'amount': payment_upload.amount,
+    'phone': payment_upload.phone,
+    'transfer_time': payment_upload.transfer_time.strftime('%H:%M %d-%m-%Y'),
     }
+
 
     # โหลดรูปภาพสลิปการชำระเงิน
     payment_slip_path = payment_upload.payment_slip.path
     with default_storage.open(payment_slip_path, 'rb') as image_file:
-        image = MIMEImage(image_file.read())
+        image_data = image_file.read()
+        if not image_data:
+            print("Image file is empty.")
+            return  # Or handle empty image file appropriately
+
+        try:
+            image = MIMEImage(image_data)
+        except TypeError as e:
+            print(f"Error creating MIMEImage: {e}")
+            return  # Or handle unsupported image format
+        
         image.add_header('Content-ID', '<payment_slip_image>')  # หรือ Content-ID ที่คุณต้องการ
 
     # เรนเดอร์ HTML และสร้างอีเมล
@@ -156,6 +159,8 @@ def send_payment_notification(payment_upload):
     email.content_subtype = "html"  # บอกว่าเนื้อหาเป็น HTML
     email.attach(image)  # แนบรูปภาพ
     email.send()
+
+
 
 
 # views.py
