@@ -15,13 +15,19 @@ def product(request):
     product = Product.objects.all()
     return render(request,'products/product.html',{'products':product,'accounts':account}) #สร้างปุ่ม 2 ปุ่ม 1 ซื้อสินค้าสำหรับcustomer เท่านั้น 2.เพิ่มสินค้า emp/admin
 
+from decimal import Decimal
+
 def addProduct(request):
     category = Category.objects.all()
     if request.method == 'POST':
         form = AddproductForm(request.POST, request.FILES)
         cat = Category.objects.get(name=request.POST.get('cat'))
-        shipping_cost = request.POST.get('shipping_cost')  # ดึงข้อมูล shipping_cost จาก request.POST
         if form.is_valid():
+            shipping_cost = request.POST.get('shipping_cost')  # ดึงข้อมูล shipping_cost จาก request.POST
+            try:
+                shipping_cost = Decimal(shipping_cost)  # แปลงข้อมูล shipping_cost เป็น Decimal
+            except:
+                shipping_cost = None  # ให้ shipping_cost เป็น None หากไม่สามารถแปลงเป็น Decimal ได้
             product_instance = form.save(commit=False)
             product_instance.category = cat
             product_instance.shipping_cost = shipping_cost  # บันทึกข้อมูล shipping_cost ใน product_instance
@@ -30,6 +36,7 @@ def addProduct(request):
     else:
         form = AddproductForm()
     return render(request, 'products/addproduct.html', {'productform': form, 'categorys': category })
+
 
 
 def editProduct(request, pk):

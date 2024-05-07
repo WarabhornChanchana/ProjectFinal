@@ -104,6 +104,7 @@
     {% endif %}
 
     {% if user.is_authenticated and user.account.role == "admin" %}
+        <a href="{% url 'admin_order' %}" class="btn btn-primary mb-3" >คำสั่งซื้อ</a>
         <a href="{% url 'add_slide' %}" class="btn btn-primary mb-3">เพิ่มรูปภาพสไลด์</a>
     {% endif %}
 

@@ -6,176 +6,180 @@
 
 {% block content %}
 <style>
-  /* Overall layout */
-  .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-  }
+    /* Overall layout */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
 
-  /* Styling the search bar */
-  .search-bar {
-      margin-bottom: 30px;
-      display: flex;
-      justify-content: center;
-  }
+    /* Styling the search bar */
+    .search-bar {
+        margin-bottom: 30px;
+        display: flex;
+        justify-content: center;
+    }
 
-  .search-bar .input-group {
-      width: 75%;
-  }
+    .search-bar .input-group {
+        width: 75%;
+    }
 
-  .search-bar input.form-control {
-      border-radius: 20px 0 0 20px;
-      height: 45px;
-      border: 2px solid #28a745;
-      padding: 5px 20px;
-      font-size: 1rem;
-  }
+    .search-bar input.form-control {
+        border-radius: 20px 0 0 20px;
+        height: 45px;
+        border: 2px solid #28a745;
+        padding: 5px 20px;
+        font-size: 1rem;
+    }
 
-  .search-bar .btn {
-      border-radius: 0 20px 20px 0;
-      background-color: #28a745;
-      color: white;
-      padding: 0 20px;
-      border: 2px solid #28a745;
-      transition: background-color 0.3s ease;
-  }
+    .search-bar .btn {
+        border-radius: 0 20px 20px 0;
+        background-color: #28a745;
+        color: white;
+        padding: 0 20px;
+        border: 2px solid #28a745;
+        transition: background-color 0.3s ease;
+    }
 
-  .search-bar .btn:hover {
-      background-color: #218838;
-  }
+    .search-bar .btn:hover {
+        background-color: #218838;
+    }
 
-  /* Card styles */
-  .card {
-      background-color: #fff;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      transition: box-shadow 0.3s ease-in-out;
-      margin-bottom: 30px; /* Space between cards */
-  }
+    /* Card styles */
+    .card {
+        background-color: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s ease-in-out;
+        margin-bottom: 30px;
+        /* Space between cards */
+    }
 
-  .card:hover {
-      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-  }
+    .card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
 
-  .card-img-top {
-      height: 250px; /* Fixed height for images */
-      object-fit: cover;
-  }
+    .card-img-top {
+        height: 250px;
+        /* Fixed height for images */
+        object-fit: cover;
+    }
 
-  .card-body {
-      padding: 15px;
-      text-align: center;
-  }
+    .card-body {
+        padding: 15px;
+        text-align: center;
+    }
 
-  .card-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-  }
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
 
-  .card-text {
-      font-size: 1rem;
-      margin-bottom: 15px;
-      color: #666;
-  }
+    .card-text {
+        font-size: 1rem;
+        margin-bottom: 15px;
+        color: #666;
+    }
 
-  /* Number spinner */
-  .number-spinner {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 15px;
-  }
+    /* Number spinner */
+    .number-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 15px;
+    }
 
-  .number-spinner input {
-      width: 60px;
-      border-radius: 20px;
-      text-align: center;
-      margin: 0 10px;
-      border: 1px solid #28a745;
-  }
+    .number-spinner input {
+        width: 60px;
+        border-radius: 20px;
+        text-align: center;
+        margin: 0 10px;
+        border: 1px solid #28a745;
+    }
 
-  .number-spinner button {
-      border-radius: 20px;
-      padding: 5px 10px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      transition: background-color 0.3s ease;
-  }
+    .number-spinner button {
+        border-radius: 20px;
+        padding: 5px 10px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        transition: background-color 0.3s ease;
+    }
 
-  .number-spinner button:hover {
-      background-color: #218838;
-  }
+    .number-spinner button:hover {
+        background-color: #218838;
+    }
 
-  /* Action buttons */
-  .btn-custom-green {
-      background-color: #28a745;
-      color: white;
-      border-radius: 20px;
-      padding: 10px 30px;
-      border: none;
-      transition: background-color 0.3s ease;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  }
+    /* Action buttons */
+    .btn-custom-green {
+        background-color: #28a745;
+        color: white;
+        border-radius: 20px;
+        padding: 10px 30px;
+        border: none;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
 
-  .btn-custom-green:hover {
-      background-color: #218838;
-  }
+    .btn-custom-green:hover {
+        background-color: #218838;
+    }
 
-  .btn-primary {
-      background-color: #007bff;
-      border-color: #007bff;
-      box-shadow: none; /* Optional: removes the default box-shadow for a flat design */
-  }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        box-shadow: none;
+        /* Optional: removes the default box-shadow for a flat design */
+    }
 
-  .btn-danger {
-      background-color: #dc3545;
-      border-color: #dc3545;
-  }
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+    }
 
-  /* Responsive grid for cards */
-  @media (min-width: 768px) {
-      .row {
-          display: flex;
-          flex-wrap: wrap;
-          justify-content: space-around;
-      }
+    /* Responsive grid for cards */
+    @media (min-width: 768px) {
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+        }
 
-      .col-md-4 {
-          width: 30%;
-      }
-  }
+        .col-md-4 {
+            width: 30%;
+        }
+    }
 
-  /* Small screen adjustments */
-  @media (max-width: 767px) {
-      .row {
-          flex-direction: column;
-          align-items: center;
-      }
+    /* Small screen adjustments */
+    @media (max-width: 767px) {
+        .row {
+            flex-direction: column;
+            align-items: center;
+        }
 
-      .col-sm-6 {
-          width: 100%;
-      }
-  }
+        .col-sm-6 {
+            width: 100%;
+        }
+    }
 
-  /* Style for the add product button */
-.btn-add-product {
-    background-color: #28a745; /* Green color */
-    color: white;
-    border-radius: 20px;
-    padding: 10px 30px;
-    border: none;
-    transition: background-color 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
+    /* Style for the add product button */
+    .btn-add-product {
+        background-color: #28a745;
+        /* Green color */
+        color: white;
+        border-radius: 20px;
+        padding: 10px 30px;
+        border: none;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
 
-.btn-add-product:hover {
-    background-color: #218838; /* Darker green color on hover */
-}
-
+    .btn-add-product:hover {
+        background-color: #218838;
+        /* Darker green color on hover */
+    }
 </style>
 
 
@@ -188,11 +192,11 @@
     </div>
     <div>
         {% if accounts.role == "admin" %}
-            <a href="{% url 'addproducts' %}" class="btn btn-add-product mt-3">เพิ่มสินค้า</a>
+        <a href="{% url 'addproducts' %}" class="btn btn-add-product mt-3">เพิ่มสินค้า</a>
         {% endif %}
     </div>
-        <br>
-        <br>    
+    <br>
+    <br>
     <div class="row">
         {% for product in products %}
         <div class="col-md-4">
@@ -206,7 +210,8 @@
                     <p class="card-text">เหลือจำนวน: {{ product.stock_quantity }} กิโลกรัม</p>
                     <div class="action-buttons">
                         {% if accounts.role == "admin" %}
-                        <button onclick="location.href='{% url 'editProducts' product.id %}'" class="btn btn-primary">แก้ไข</button>
+                        <button onclick="location.href='{% url 'editProducts' product.id %}'"
+                            class="btn btn-primary">แก้ไข</button>
                         <button onclick="confirmDelete({{ product.id }})" class="btn btn-danger">ลบ</button>
                         {% endif %}
                         {% if accounts.role == "customer" %}
@@ -215,7 +220,8 @@
                             <input type="hidden" name="product_id" value="{{ product.id }}">
                             <div class="number-spinner">
                                 <button class="btn btn-outline-secondary" type="button" data-dir="dwn">-</button>
-                                <input type="text" class="form-control" value="1" name="quantity" id="qty-{{ product.id }}">
+                                <input type="text" class="form-control" value="1" name="quantity"
+                                    id="qty-{{ product.id }}">
                                 <button class="btn btn-outline-secondary" type="button" data-dir="up">+</button>
                             </div>
                             <button type="submit" class="btn btn-custom-green">เพิ่มลงตะกร้า</button>
@@ -230,8 +236,8 @@
 </div>
 
 <script>
-    document.querySelectorAll(".number-spinner button").forEach(function(button) {
-        button.addEventListener("click", function() {
+    document.querySelectorAll(".number-spinner button").forEach(function (button) {
+        button.addEventListener("click", function () {
             var input = this.parentElement.querySelector("input");
             var currentValue = parseInt(input.value) || 0;
             if (this.getAttribute("data-dir") === "up") {

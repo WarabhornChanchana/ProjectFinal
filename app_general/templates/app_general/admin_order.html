@@ -1,0 +1,41 @@
+{% extends "app_general/base.html" %}
+
+{% block content %}
+<h2>คำสั่งซื้อทั้งหมด</h2>
+<ul>
+    {% for payment in payments %}
+    <li>
+        <span>{{ payment.name }}: {{ payment.transfer_time }}</span>
+        <a href="{% url 'payment_detail' payment.id %}" class="view-order-button">View Order</a>
+    </li>
+    {% empty %}
+    <p>No payments have been made.</p>
+    {% endfor %}
+</ul>
+
+<style>
+    .view-order-button {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+        margin-left: 20px;
+    }
+
+    .view-order-button:hover {
+        background-color: #45a049;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    li {
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}

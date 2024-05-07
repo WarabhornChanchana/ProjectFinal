@@ -17,7 +17,14 @@ class RegisterForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ["first_name", "last_name", "username", "email", "password1", "password2", "role", "phone_number"]
-
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+        if password1 and password2 and password1 != password2:
+            self.add_error('password2', "Password must match")
+        return cleaned_data
 
 class LoginForm(AuthenticationForm):
     username = forms.CharField(label='Username', max_length=150, widget=forms.TextInput)

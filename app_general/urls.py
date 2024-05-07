@@ -10,6 +10,7 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('history/', views.history, name='history'),
     path('add_slide/', views.add_slide, name='add_slide'),
+    path('payments/', views.admin_payment_history, name='admin_order'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -27,7 +27,7 @@ urlpatterns = [
     path("carts/", include("cart.urls")),
     path("products/", include("products.urls")),
     # เลือกหนึ่งในสอง path ต่อไปนี้เท่าที่ถูกต้องตามความต้องการ
-    path('authenticate/', include('django.contrib.auth.urls')),  # ใช้ URL patterns จาก django.contrib.auth.urls
+    # path('authenticate/', include('django.contrib.auth.urls')),  # ใช้ URL patterns จาก django.contrib.auth.urls
     path('authenticate/', include('authenticate.urls')),  # หรือจะใช้ URL patterns จาก authenticate.urls ก็ได้
 ]
 

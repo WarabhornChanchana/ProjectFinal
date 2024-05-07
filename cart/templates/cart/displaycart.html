@@ -1,165 +1,144 @@
-{% extends "app_general/base.html" %}
+{% extends 'app_general/base.html' %}
 
 {% block content %}
-<div class="container mt-4 text-center"> <!-- เพิ่ม class "text-center" เพื่อจัดตำแหน่งให้เป็นกลาง -->
-    <h2 style="font-size: 32px; font-weight: bold;">ตะกร้าสินค้าของคุณ</h2> <!-- ปรับขนาดและ font-weight ของข้อความ -->
-    {% if cart_items %}
-    <form id="cart-update-form" method="POST" action="{% url 'cartdisplay' %}">
-        {% csrf_token %}
-        <!-- เพิ่มส่วนของฟอร์มเลือกรูปแบบการจัดส่ง -->
-        <br>
-        <div id="deliveryForm">
-            <label for="deliveryMethod">เลือกรูปแบบการจัดส่ง:</label>
-            <select id="deliveryMethod" name="deliveryMethod">
-                <option value="delivery">จัดส่งโดยขนส่ง</option>
-                <option value="pickup">มารับเองที่ร้าน</option>
-            </select>
-        </div>
-<br>
-        <!-- ส่วนของการแสดงผลค่าจัดส่ง -->
-        <div id="deliveryCost"></div>
+<h2 style="text-align:center;">ตะกร้าสินค้าของคุณ</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in cart_items %}
+        <tr>
+            <td>
+                <img src="{{ item.product.product_cover.url }}" width="80" height="80" alt="{{ item.product.name }}"> 
+                {{ item.product.name }} 
+            </td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.product.price }}</td>
+            <td>{{ item.total_price }}</td>
+            <td>
+                <form class="remove-item-form" method="POST" data-item-id="{{ item.id }}">
+                    {% csrf_token %}
+                    <input type="number" name="quantity" value="1" min="1" max="{{ item.quantity }}"
+                        style="width:50px;">
+                    <button type="submit">Remove</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="5" style="text-align:right;">Total: ฿{{ total_price }}</td>
+        </tr>
+        <tr>
+            <td colspan="5" style="text-align:right;">
+                <a href="{% url 'payment' %}" class="btn btn-primary">ชำระเงิน</a>
+            </td>
+        </tr>
+    </tfoot>
+</table>
 
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>สินค้า</th>
-                        <th>ราคา/กก.</th>
-                        <th>จำนวน</th>
-                        <th>ราคารวม</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in cart_items %}
-                    <tr>
-                        <td>
-                            <div class="product-info">
-                                <img src="{{ item.product.product_cover.url }}" width="80" height="80" alt="{{ item.product.name }}">
-                                <div class="product-details">
-                                    <p class="product-name">{{ item.product.name }}</p>
-                                    <p class="product-id">ID: {{ item.product.id }}</p>
-                                    
-                                </div>
-                            </div>
-                        </td>
-                        <td class="price-per-unit">{{ item.product.price }}</td>
-                        <td class="quantity">
-                            <input type="number" name="quantity_{{ item.id }}" value="{{ item.quantity }}" min="1" class="form-control quantity-input">
-                        </td>
-                        <td class="item-total-price" data-price="{{ item.total_price }}">{{ item.total_price }}</td>
-                        <td>
-                            <button class="btn btn-danger btn-sm remove-from-cart" data-item-id="{{ item.id }}">ลบสินค้า</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        <div class="d-flex justify-content-between align-items-center mt-3">
-            <div style="font-size: 18px; border: 2px solid #ccc; padding: 5px 10px; display: inline-block;">
-                ราคารวมสุทธิ: <span id="total-price" style="font-weight: bold;">{{ total_price }}</span> บาท
-            </div>
-            
-            <!-- ส่วนของการแสดงผลค่าจัดส่ง -->
-            <div id="deliveryCost"></div>
-
-
-            <a href="{% url 'payment' %}">ชำระเงิน</a>
-        </div>
-    </form>
-    {% else %}
-    <p>ตะกร้าสินค้าของคุณว่างเปล่า</p>
-    {% endif %}
-</div>
-{% endblock %}
-
-{% block extra_css %}
 <style>
-.product-info {
-    display: flex;
-    align-items: center;
-}
 
-.product-details {
-    margin-left: 10px;
-}
-
-.product-name {
-    font-weight: bold;
-}
-
-.product-id {
-    font-size: 0.9rem;
-    color: #888;
-}
-
-.price-per-unit,
-.quantity,
-.item-total-price {
-    vertical-align: middle;
-}
-
-.item-total-price::before {
-    content: '';
-}
-</style>
-{% endblock extra_css %}
-
-<script>
-    function updateDeliveryCost() {
-    var deliveryMethod = document.getElementById('deliveryMethod').value;
-    var shippingCost = 0;  // ประกาศตัวแปร shippingCost เพื่อใช้เก็บค่าส่ง
-
-    if (deliveryMethod === 'delivery') {
-        // ให้ shippingCost เท่ากับค่าส่งของบริษัทขนส่งที่เลือก หรือคำนวณจากข้อมูลที่มีอยู่
-        shippingCost = 50;  // ตัวอย่างเท่ากับ 50 บาท
-    } else if (deliveryMethod === 'pickup') {
-        shippingCost = 0;  // ถ้าเลือกมารับเอง ค่าส่งเป็นศูนย์
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
     }
 
-    // นำค่า shippingCost มาแสดงผลใน div ที่มี id deliveryCost
-    document.getElementById('deliveryCost').innerText = 'ค่าจัดส่ง: ' + shippingCost + ' บาท';
+    th,
+    td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+    }
 
-    // คำนวณและแสดงราคารวมสุทธิใหม่ (รวมราคาสินค้า + ค่าจัดส่ง)
-    updateTotalPrice();
-}
+    th {
+        background-color: #f2f2f2;
+    }
 
-function updateTotalPrice() {
-    var totalPrice = 0;
-    var pricePerUnit = parseFloat(document.getElementById('pricePerUnit').innerText);
-    var quantity = parseInt(document.getElementById('quantity').value);
-    var shippingCost = parseFloat(document.getElementById('deliveryCost').innerText.split(':')[1]);
+    thead th {
+        position: sticky;
+        top: 0;
+        background-color: #f9f9f9;
+    }
 
-    totalPrice = (pricePerUnit * quantity) + shippingCost;
+    input[type="number"],
+    button {
+        padding: 5px;
+    }
 
-    document.getElementById('totalPrice').innerText = totalPrice.toFixed(2);
-}
+    button {
+        background-color: red;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
 
-    
-    $(document).ready(function() {
-        $('#cart-update-form').submit(function(event) {
-            event.preventDefault(); // ป้องกันการ submit ฟอร์มอัตโนมัติ
-    
+    button:hover {
+        opacity: 0.8;
+    }
+
+    tfoot {
+        font-weight: bold;
+        background-color: #f9f9f9;
+    }
+
+    tfoot td {
+        border: none;
+    }
+
+    .remove-item-form {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+</style>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.remove-item-form').submit(function (event) {
+            event.preventDefault();
+            var form = $(this);
+            var itemId = form.data('item-id');
+            var quantityToRemove = form.find('input[name="quantity"]').val();
+
             $.ajax({
-                url: $(this).attr('action'), // URL ที่ระบุใน action attribute ของฟอร์ม
-                type: 'POST',
-                data: $(this).serialize(), // รวมข้อมูลจากฟอร์มทั้งหมดเพื่อส่งไปยัง URL นั้น
-                success: function(response) {
-                    // กรณีสำเร็จในการส่งข้อมูลฟอร์ม
-                    console.log(response); // เพื่อ debug หรือดูข้อมูลที่ได้รับกลับ
-    
-                    // ให้เด้งไปยังหน้าชำระเงิน หากการส่งฟอร์มเสร็จสมบูรณ์
-                    window.location.href = '{% url 'payment' %}'; // เปลี่ยนไปยัง URL ของหน้า checkout ที่คุณต้องการ
+                url: '{% url "remove_from_cart" %}',
+                method: 'POST',
+                data: {
+                    item_id: itemId,
+                    quantity: quantityToRemove,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
                 },
-                error: function(xhr, errmsg, err) {
-                    // กรณีเกิดข้อผิดพลาดในการส่งข้อมูลฟอร์ม
-                    console.log(xhr.status + ": " + xhr.responseText);
-                    // แสดงข้อความผิดพลาดหรือปรับแก้ตามความเหมาะสม
+                success: function (response) {
+                    if (response.success) {
+                        // Update the total price in the UI
+                        $('#total-price').text(response.total_price);
+                        // Optionally, display a success message
+                        alert(response.message);
+                        // Reload the page or update the cart UI as needed
+                        location.reload();
+                    } else {
+                        // Handle errors
+                        alert(response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    // Handle AJAX errors
+                    console.error(error);
                 }
             });
         });
     });
-    
 </script>
-    
+{% endblock %}
