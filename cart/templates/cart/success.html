@@ -1,37 +1,14 @@
-{% extends "app_general/base.html" %}
+{% extends 'app_general/base.html' %}
 
 {% block content %}
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout</title>
-</head>
-<body>
-    <h1>Order Summary</h1>
-    <div>
-        <h2>Order Details</h2>
-        <ul>
-            {% for item in cart_items %}
-                <li>{{ item.product.name }} - Quantity: {{ item.quantity }} - Price: {{ item.product.price }}</li>
-            {% endfor %}
-        </ul>
-        <p>Total Price: {{ total_price }}</p>
-    </div>
-    <div>
-        <h2>Shipping Details</h2>
-        <p>Shipping Address: {{ user.account.address }}</p>
-        <p>Shipping Method: Standard Shipping</p>
-        <p>Estimated Delivery Date: {{ order.order_date|date:"F j, Y" }}</p>
-    </div>
-    <div>
-        <h2>Payment Details</h2>
-        <p>Payment Method: Credit Card</p>
-        <p>Total Amount Charged: {{ total_price }}</p>
-        <!-- Additional payment details here -->
-    </div>
-    <form action="{% url 'products' %}" method="post">
-        {% csrf_token %}
-        <button type="submit">ซื้อสินค้าอีกครั้ง</button>
-    </form>
-</body>
+<h1>คำสั่งซื้อสำเร็จ</h1>
+<h2>รายละเอียดคำสั่งซื้อ</h2>
+<ul>
+    {% for item in cart_items %}
+    <li>{{ item.product.name }} - จำนวน: {{ item.quantity }} - ราคา: {{ item.product.price|floatformat:2 }}</li>
+{% endfor %}
+
+</ul>
+<p>Total Price: {{ total_price|floatformat:2 }}</p>
 {% endblock %}
+

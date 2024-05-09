@@ -81,8 +81,9 @@
         {% endif %}
         {% if request.user.account.role == "customer" %}
           <a href="{% url 'history' %}" class="btn">ประวัติการสั่งซื้อ</a>
-        {% elif request.user.account.role == "admin" %}
+          {% elif request.user.account.role == "admin" %}
           <a href="{% url 'history' %}" class="btn">ประวัติการขาย</a>
+          <a href="{% url 'admin_order' %}" class="btn">คำสั่งซื้อ</a>
         {% endif %}
         <a href="{% url 'logout' %}" class="btn">ออกจากระบบ</a>
       {% else %}

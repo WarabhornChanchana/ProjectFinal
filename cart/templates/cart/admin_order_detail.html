@@ -1,0 +1,20 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+<h1>Order Details</h1>
+<h2>Items Ordered</h2>
+<ul>
+    {% for item in order_items %}
+    <li>{{ item.product.name }} - Quantity: {{ item.quantity }}</li>
+    {% endfor %}
+</ul>
+
+<h2>Payment Details</h2>
+<p>Amount: {{ payment_details.amount }}</p>
+<p>Transfer Time: {{ payment_details.transfer_time }}</p>
+<img src="{{ payment_details.payment_slip.url }}" alt="Payment Slip Image">
+
+<h2>Shipping Details</h2>
+<p>Shipping Info: {{ admin_order.shipping_details }}</p>
+<p>Tracking Number: {{ admin_order.tracking_number }}</p>
+{% endblock %}

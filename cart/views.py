@@ -14,6 +14,12 @@ from .models import Cart, CartItem, PaymentUpload
 from authenticate.models import Account
 from products.models import Product
 from .forms import PaymentUploadForm
+from .models import Order, OrderItem, PaymentUpload, AdminOrder
+from django.db import transaction
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Account, Cart, Order, OrderItem, AdminOrder, CartItem
+from products.models import Product  # Ensure this import is correct
 
 @login_required
 def cartdisplay(request):
@@ -78,17 +84,26 @@ def remove_from_cart(request):
             'message': 'Item not found.'
         }, status=404)
 
-def upload_payment(request):
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import PaymentUploadForm
+from .models import Order
+
+
+def upload_payment(request, order_id=None):
+    order = get_object_or_404(Order, id=order_id) if order_id else None
+
     if request.method == 'POST':
         form = PaymentUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            new_payment = form.save()
+            new_payment = form.save(commit=False)
+            new_payment.order = order  # เชื่อมการชำระเงินกับออเดอร์
+            new_payment.save()
             send_payment_notification(new_payment)
-            messages.success(request, 'Your payment slip has been uploaded successfully!')
             return redirect('success')
     else:
-        form = PaymentUploadForm()
+        form = PaymentUploadForm(initial={'order': order.id if order else None})
     return render(request, 'cart/payment.html', {'form': form})
+
 
 def send_payment_notification(payment_upload):
     subject = 'New Payment Slip Uploaded'
@@ -125,32 +140,55 @@ def send_payment_notification(payment_upload):
         print(f"Failed to send email: {e}")  # Consider more robust error handling or logging
 
 
+
+@login_required
 def success_view(request):
-    account = get_object_or_404(Account, user=request.user)
-    cart, _ = Cart.objects.get_or_create(account=account)
-    order = Order.objects.create(user=request.user)  # Create a new order
-    total_price = 0
+    with transaction.atomic():
+        account = get_object_or_404(Account, user=request.user)
+        cart, _ = Cart.objects.get_or_create(account=account)
+        order = Order.objects.create(user=request.user)  # Create a new order
+        total_price = 0
+        cart_items = list(cart.cart_items.all())  # Capture cart items before deleting
 
-    for item in cart.cart_items.all():
-        OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
-        total_price += item.product.price * item.quantity
+        for item in cart_items:
+            order_item = OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
+            total_price += item.product.price * item.quantity
 
-    cart.cart_items.all().delete()  # Clear the cart after checkout
+        cart.cart_items.all().delete()  # Clear the cart after checkout
+        AdminOrder.objects.create(user=request.user, order=order, shipping_details='Your shipping details here')
 
-    # Create AdminOrder
-    AdminOrder.objects.create(user=request.user, order=order, shipping_details='Your shipping details here')
-
-    return render(request, 'cart/success.html', {'total_price': total_price})
-
-from django.shortcuts import render, get_object_or_404
-from .models import PaymentUpload
-from cart.models import OrderItem
+        context = {
+            'total_price': total_price,
+            'cart_items': cart_items,  # Pass the list of items to the template
+            'order': order,  # Pass the order to access order details like date
+        }
+        return render(request, 'cart/success.html', context)
 
 
-def payment_detail(request, id):
-    payment = get_object_or_404(PaymentUpload, pk=id)
-    order_items = OrderItem.objects.filter(order__payment__id=id)
-    return render(request, 'cart/order_detail.html', {'payment': payment, 'order_items': order_items})
+def order_details(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+    order_items = OrderItem.objects.filter(order=order)
+    payment_details = get_object_or_404(PaymentUpload, order=order)
+    admin_order = get_object_or_404(AdminOrder, order=order)
+
+    context = {
+        'order': order,
+        'order_items': order_items,
+        'payment_details': payment_details,
+        'admin_order': admin_order,
+    }
+    return render(request, 'cart/admin_order_detail.html', context)
+
+
+
+
+
+
+
+
+
+
+
 
 
 

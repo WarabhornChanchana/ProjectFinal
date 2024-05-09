@@ -11,7 +11,8 @@ from .forms import SlideForm
 from .models import Slide
 from cart.models import PaymentUpload, Account
 from django.http import HttpResponseForbidden
-
+from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 
 def home(request):
     slides = Slide.objects.all()
@@ -24,7 +25,7 @@ def history(request):
     return render(request,'app_general/history.html', {'payments': payments})
 
 @login_required
-def admin_payment_history(request):
+def admin_order(request):
     try:
         account = Account.objects.get(user=request.user)
     except Account.DoesNotExist:
@@ -32,9 +33,18 @@ def admin_payment_history(request):
 
     if account.role != Account.ADMIN:
         return HttpResponseForbidden("You do not have permission to view this page.")
-
-    # Sort payments by 'transfer_time' in descending order
     payments = PaymentUpload.objects.all().order_by('-transfer_time')
+
+    if 'delete' in request.POST:
+        payment_id = request.POST.get('delete')
+        try:
+            payment_to_delete = PaymentUpload.objects.get(id=payment_id)
+            payment_to_delete.delete()
+            messages.success(request, 'Order has been successfully deleted.')
+        except ObjectDoesNotExist:
+            messages.error(request, "No such payment exists.")
+        return redirect('admin_order')  # Redirect back to the same page to refresh the list
+
     return render(request, 'app_general/admin_order.html', {'payments': payments})
 
 

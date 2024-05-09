@@ -5,19 +5,20 @@
 <ul>
     {% for payment in payments %}
     <li>
-        <span>{{ payment.name }}: {{ payment.transfer_time }}</span>
-        <a href="{% url 'payment_detail' payment.id %}" class="view-order-button">View Order</a>
+        <span>{{ payment.name }}: {{ payment.transfer_time|date:"Y-m-d H:i" }}</span>
+        <!-- Make sure to pass payment.id as order_id -->
+        <a href="{% url 'order_detail' order_id=payment.id %}">View Details</a>
     </li>
     {% empty %}
     <p>No payments have been made.</p>
     {% endfor %}
 </ul>
 
+
 <style>
-    .view-order-button {
+    .view-order-button, .delete-button {
         display: inline-block;
         padding: 8px 16px;
-        background-color: #4CAF50;
         color: white;
         text-decoration: none;
         border-radius: 5px;
@@ -25,8 +26,20 @@
         margin-left: 20px;
     }
 
+    .view-order-button {
+        background-color: #4CAF50;
+    }
+
+    .delete-button {
+        background-color: #f44336;
+    }
+
     .view-order-button:hover {
         background-color: #45a049;
+    }
+
+    .delete-button:hover {
+        background-color: #d32f2f;
     }
 
     ul {
