@@ -58,28 +58,56 @@ def logout_user(request):
     auth.logout(request)
     return redirect('home')
 
-from django.shortcuts import render, redirect
-from .forms import  AddressForm
-from django.contrib.auth.models import User
-from .models import Account, Address
+# views.py
 
-def edit_profile(request, pk):
-    account = Account.objects.get(pk=pk)
-    address_instance = account.address.first()  # Get the first address instance associated with the account
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .forms import ProfileEditForm, AddressEditForm
+
+@login_required
+def edit_profile(request):
+    user = request.user
+    address_instance = user.account.address.first() if hasattr(user, 'account') and user.account.address.exists() else None
 
     if request.method == 'POST':
-        account_form = ProfileForm(request.POST, instance=account)
-        address_form = AddressForm(request.POST, instance=address_instance)
-        
-        if account_form.is_valid() and address_form.is_valid():
-            account_form.save()
+        user_form = ProfileEditForm(request.POST, instance=user)
+        address_form = AddressEditForm(request.POST, instance=address_instance)
+        if user_form.is_valid() and address_form.is_valid():
+            user_form.save()
             address_form.save()
+            # messages.success(request, 'Profile updated successfully.')
             return redirect('home')
     else:
-        account_form = ProfileForm(instance=account)
-        address_form = AddressForm(instance=address_instance)
+        user_form = ProfileEditForm(instance=user)
+        address_form = AddressEditForm(instance=address_instance)
 
-    return render(request, 'authenticate/edit_profile.html', {'account_form': account_form, 'address_form': address_form})
+    return render(request, 'authenticate/edit_profile.html', {
+        'user_form': user_form,
+        'address_form': address_form
+    })
+
+
+
+
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            # อัพเดตเซสชันแอทติบิวต์ของผู้ใช้หลังจากเปลี่ยนรหัสผ่านเพื่อไม่ให้ผู้ใช้ตัวเองถูกบังคับให้ออกจากระบบ
+            update_session_auth_hash(request, user)
+            return redirect('home')  # เปลี่ยนไปยังหน้าโปรไฟล์หลังจากการเปลี่ยนรหัสผ่าน
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'authenticate/change_password.html', {'form': form})
+
+
+
+
+
+
+
 
 
 

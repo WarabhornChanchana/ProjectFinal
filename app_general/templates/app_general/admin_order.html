@@ -4,14 +4,16 @@
 <h2>คำสั่งซื้อทั้งหมด</h2>
 <ul>
     {% for payment in payments %}
-    <li>
-        <span>{{ payment.name }}: {{ payment.transfer_time|date:"Y-m-d H:i" }}</span>
-        <!-- Make sure to pass payment.id as order_id -->
-        <a href="{% url 'order_detail' order_id=payment.id %}">View Details</a>
-    </li>
-    {% empty %}
-    <p>No payments have been made.</p>
-    {% endfor %}
+<li>
+    <span>{{ payment.name }}: {{ payment.transfer_time|date:"Y-m-d H:i" }}</span>
+    {% if payment.order.id %}
+    <a href="{% url 'order_details' payment.order.id %}">View Details</a>
+    {% else %}
+    <span>Details not available</span>
+    {% endif %}
+</li>
+{% endfor %}
+
 </ul>
 
 

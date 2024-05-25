@@ -1,20 +1,44 @@
-{% extends "base_generic.html" %}
-
+{% extends 'app_general/base.html' %}
 {% block content %}
 <h1>Order Details</h1>
-<h2>Items Ordered</h2>
-<ul>
-    {% for item in order_items %}
-    <li>{{ item.product.name }} - Quantity: {{ item.quantity }}</li>
-    {% endfor %}
-</ul>
+<p>Order ID: {{ order.id }}</p>
+<p>Order Status: {{ order.get_order_status_display }}</p>
+<p>Order Date: {{ order.order_date }}</p>
 
+<h2>Items Purchased</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in order_items %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.product.price }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if payment_uploads %}
 <h2>Payment Details</h2>
-<p>Amount: {{ payment_details.amount }}</p>
-<p>Transfer Time: {{ payment_details.transfer_time }}</p>
-<img src="{{ payment_details.payment_slip.url }}" alt="Payment Slip Image">
+{% for payment in payment_uploads %}
+    <p>Name: {{ payment.name }}</p>
+    <p>Amount: {{ payment.amount }}</p>
+    <p>Phone: {{ payment.phone }}</p>
+    <p>Transfer Time: {{ payment.transfer_time }}</p>
+    {% if payment.payment_slip %}
+    <p>Payment Slip:</p>
+    <img src="{{ payment.payment_slip.url }}" alt="Payment Slip" style="width: 200px;">
+    {% endif %}
+{% endfor %}
+{% else %}
+<p>No payment details available.</p>
+{% endif %}
 
-<h2>Shipping Details</h2>
-<p>Shipping Info: {{ admin_order.shipping_details }}</p>
-<p>Tracking Number: {{ admin_order.tracking_number }}</p>
 {% endblock %}

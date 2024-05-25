@@ -109,14 +109,17 @@
                 {{ form.amount }}
             </div>
             <div class="form-group">
-                <label for="id_transfer_time">เวลาโอน ตัวอย่าง * 24/04/2024 12:30 น.</label>
-                {{ form.transfer_time }}
+                <div class="form-group">
+                    <label for="id_transfer_time">เวลาโอน ตัวอย่าง * 24/04/2024 12:30 น.</label>
+                    {{ form.transfer_time }}
+                </div>              
             </div>
             <div class="form-group">
                 <label for="id_payment_slip">สลิปการชำระเงิน:</label>
                 {{ form.payment_slip }}
             </div>
-            <button type="submit">อัพโหลด</button>
+                {{ form.order }}
+                <button type="submit">อัพโหลด</button>
         </form>
     </div>
     

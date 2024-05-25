@@ -37,10 +37,32 @@ class AddressForm(forms.ModelForm):
         fields = ['street', 'district', 'city', 'postal_code']
 
 
-from django import forms
-from .models import Profile
+# from django import forms
+# from .models import Profile
 
-class ProfileForm(forms.ModelForm):
+# class ProfileForm(forms.ModelForm):
+#     class Meta:
+#         model = Profile
+#         fields = ['first_name', 'last_name', 'email', 'phone_number', 'street', 'district', 'city', 'postal_code']
+
+class ProfileEditForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=100, required=False)
+    last_name = forms.CharField(max_length=100, required=False)
+    username = forms.CharField(label='Username', max_length=150, widget=forms.TextInput)
+    phone_number = forms.CharField(max_length=20, required=True)
+
     class Meta:
-        model = Profile
-        fields = ['first_name', 'last_name', 'email', 'phone_number', 'street', 'district', 'city', 'postal_code']
+        model = User
+        fields = ["first_name", "last_name", "username", "phone_number"]
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        user_id = self.instance.id
+        if User.objects.filter(email=email).exclude(id=user_id).exists():
+            raise forms.ValidationError("This email is already in use by another account.")
+        return email
+
+class AddressEditForm(forms.ModelForm):
+    class Meta:
+        model = Address
+        fields = ['street', 'district', 'city', 'postal_code']

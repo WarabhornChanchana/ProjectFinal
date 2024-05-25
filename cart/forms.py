@@ -8,5 +8,6 @@ class PaymentUploadForm(forms.ModelForm):
         fields = ['name', 'phone', 'amount', 'transfer_time', 'payment_slip', 'order']
         widgets = {
             'transfer_time': DateTimeInput(attrs={'type': 'datetime-local'}),
-            'order': forms.HiddenInput()  # ซ่อนฟิลด์ order ในฟอร์ม
+            'order': forms.HiddenInput()  # Hide the order field in the form
         }
+

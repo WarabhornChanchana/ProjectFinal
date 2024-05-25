@@ -96,9 +96,10 @@
 <div class="container mt-5">
     {% if user.is_authenticated %}
         <h1>สวัสดี {{ user.username }}</h1>
-        {% if user.account.role == "customer" %}
-        <a href="{% url 'edit_profile' pk=1 %}">แก้ไขข้อมูลส่วนตัว</a>
+    {% if user.account.role == "customer" %}
+        <a href="{% url 'edit_profile' %}">Edit Profile</a>
     {% endif %}
+
     {% else %}
         <p>โปรด <a href="{% url 'login' %}">เข้าสู่ระบบ</a> เพื่อใช้งาน</p>
     {% endif %}

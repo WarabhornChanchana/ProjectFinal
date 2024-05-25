@@ -53,10 +53,11 @@ class OrderItem(models.Model):
 
 class AdminOrder(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin_orders')
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, default=1)  # Set a specific default
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
     payment_slip = models.ImageField(upload_to='payment_slips/')
     shipping_details = models.TextField(blank=True)
     tracking_number = models.CharField(max_length=50, blank=True)
+
 
 class PaymentUpload(models.Model):
     name = models.CharField(max_length=255)
@@ -64,10 +65,11 @@ class PaymentUpload(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     transfer_time = models.DateTimeField()
     payment_slip = models.FileField(upload_to='paymentslips/')
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='payments', blank=True, null=True) # Add this line
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='payments', null=True, blank=True) 
 
-    def __str__(self):
-        return f"{self.name} - {self.amount}"
+
+
+
     # payment_method_choices = [
     #     ('CASH', 'Cash'),
     #     ('BANK_TRANSFER', 'Bank Transfer'),

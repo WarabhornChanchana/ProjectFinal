@@ -25,7 +25,6 @@ from products.models import Product  # Ensure this import is correct
 def cartdisplay(request):
     account = get_object_or_404(Account, user=request.user)
     cart, _ = Cart.objects.get_or_create(account=account)
-
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
         # ทำการแปลงเป็น int โดยตรงและใช้ค่า default เป็น 0
@@ -84,25 +83,28 @@ def remove_from_cart(request):
             'message': 'Item not found.'
         }, status=404)
 
-from django.shortcuts import render, redirect, get_object_or_404
-from .forms import PaymentUploadForm
-from .models import Order
-
-
+@login_required
 def upload_payment(request, order_id=None):
-    order = get_object_or_404(Order, id=order_id) if order_id else None
-
     if request.method == 'POST':
         form = PaymentUploadForm(request.POST, request.FILES)
         if form.is_valid():
             new_payment = form.save(commit=False)
-            new_payment.order = order  # เชื่อมการชำระเงินกับออเดอร์
+            if order_id:
+                new_payment.order = get_object_or_404(Order, id=order_id)
             new_payment.save()
             send_payment_notification(new_payment)
             return redirect('success')
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
-        form = PaymentUploadForm(initial={'order': order.id if order else None})
+        form = PaymentUploadForm(initial={'order': order_id if order_id else None})
     return render(request, 'cart/payment.html', {'form': form})
+
+
+def error_view(request):
+    return render(request, 'cart/error.html', {
+        'message': 'There was an error processing your request.'
+    })
 
 
 def send_payment_notification(payment_upload):
@@ -139,45 +141,57 @@ def send_payment_notification(payment_upload):
     except Exception as e:
         print(f"Failed to send email: {e}")  # Consider more robust error handling or logging
 
+import logging
 
+logger = logging.getLogger(__name__)
+
+from django.urls import reverse
 
 @login_required
 def success_view(request):
     with transaction.atomic():
         account = get_object_or_404(Account, user=request.user)
         cart, _ = Cart.objects.get_or_create(account=account)
-        order = Order.objects.create(user=request.user)  # Create a new order
+        order = Order.objects.create(user=request.user)
+        logger.debug(f'Order created with ID: {order.id}')  # Log the order ID
+
         total_price = 0
-        cart_items = list(cart.cart_items.all())  # Capture cart items before deleting
+        cart_items = list(cart.cart_items.all())
 
         for item in cart_items:
             order_item = OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
             total_price += item.product.price * item.quantity
 
-        cart.cart_items.all().delete()  # Clear the cart after checkout
+        cart.cart_items.all().delete()
         AdminOrder.objects.create(user=request.user, order=order, shipping_details='Your shipping details here')
 
-        context = {
-            'total_price': total_price,
-            'cart_items': cart_items,  # Pass the list of items to the template
-            'order': order,  # Pass the order to access order details like date
-        }
-        return render(request, 'cart/success.html', context)
+        return redirect(reverse('order_details', args=[order.id]))
 
 
+
+
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import Order, PaymentUpload, OrderItem
+
+@login_required
 def order_details(request, order_id):
-    order = get_object_or_404(Order, pk=order_id)
-    order_items = OrderItem.objects.filter(order=order)
-    payment_details = get_object_or_404(PaymentUpload, order=order)
-    admin_order = get_object_or_404(AdminOrder, order=order)
+    order = get_object_or_404(Order, id=order_id)
+    order_items = order.order_items.all()
+    payment_uploads = PaymentUpload.objects.filter(order=order)
 
     context = {
         'order': order,
         'order_items': order_items,
-        'payment_details': payment_details,
-        'admin_order': admin_order,
+        'payment_uploads': payment_uploads,
     }
     return render(request, 'cart/admin_order_detail.html', context)
+
+
+
+
+
+
 
 
 

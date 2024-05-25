@@ -1,0 +1,10 @@
+<!-- templates/cart/error.html -->
+{% extends "app_general/base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Error</h2>
+    <p>{{ message }}</p>
+    <a href="{% url 'home' %}" class="btn btn-primary">Return Home</a>
+</div>
+{% endblock %}
