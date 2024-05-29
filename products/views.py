@@ -70,5 +70,11 @@ from .models import Product
 
 def product_search(request):
     query = request.GET.get('q', '')
+    account = None
+    if request.user.is_authenticated:
+        try:
+            account = Account.objects.get(user=request.user)
+        except Account.DoesNotExist:
+            pass
     products = Product.objects.filter(name__icontains=query) 
-    return render(request, 'products/product.html', {'products': products})
+    return render(request, 'products/product.html', {'products': products, 'accounts':account})

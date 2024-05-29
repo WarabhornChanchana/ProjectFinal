@@ -25,32 +25,53 @@ from products.models import Product  # Ensure this import is correct
 def cartdisplay(request):
     account = get_object_or_404(Account, user=request.user)
     cart, _ = Cart.objects.get_or_create(account=account)
+    shipping_fee_per_item = 20  # ค่าส่งสินค้าต่อชิ้น
+
     if request.method == 'POST':
+        delivery_method = request.POST.get('delivery_method')  # รับค่าจากฟอร์ม
         product_id = request.POST.get('product_id')
-        # ทำการแปลงเป็น int โดยตรงและใช้ค่า default เป็น 0
         quantity = int(request.POST.get('quantity', 0))
 
-        try:
-            product = Product.objects.get(id=product_id)
-            cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
-            # ตรวจสอบว่า cart_item เป็นครั้งแรกที่สร้างหรือไม่
-            if created:
-                cart_item.quantity = quantity
-            else:
-                cart_item.quantity += quantity
-            cart_item.save()
-        except Product.DoesNotExist:
-            messages.error(request, "Product not found.")
-
+        if product_id and quantity:
+            try:
+                product = Product.objects.get(id=product_id)
+                if product.stock_quantity >= quantity:
+                    cart_item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+                    if created:
+                        cart_item.quantity = quantity
+                    else:
+                        cart_item.quantity += quantity
+                    cart_item.save()
+                    # Reduce the stock of the product
+                    product.stock_quantity -= quantity
+                    product.save()
+            except Product.DoesNotExist:
+                pass  # Handle the case where the product does not exist
+        else:
+            # Update the delivery method
+            request.session['delivery_method'] = delivery_method
         return redirect('cartdisplay')
 
     cart_items = cart.cart_items.all()
+    total_price = 0
+    total_quantity = 0
     for item in cart_items:
         item.total_price = item.quantity * item.product.price
+        total_price += item.total_price
+        total_quantity += item.quantity
 
-    total_price = sum(item.total_price for item in cart_items)
+    # ตรวจสอบค่า delivery method จาก session
+    delivery_method = request.session.get('delivery_method', 'pickup')
+    shipping_fee = total_quantity * shipping_fee_per_item if delivery_method == 'delivery' else 0
+    total_price += shipping_fee
 
-    return render(request, 'cart/displaycart.html', {'cart_items': cart_items, 'total_price': total_price})
+    return render(request, 'cart/displaycart.html', {
+        'cart_items': cart_items,
+        'total_price': total_price,
+        'shipping_fee': shipping_fee,
+        'delivery_method': delivery_method
+    })
+
 
 @login_required
 @require_POST
@@ -61,7 +82,12 @@ def remove_from_cart(request):
         
         # Get the quantity to delete from the request
         quantity_to_delete = int(request.POST.get('quantity', 1))
-
+        
+        # Add the quantity back to the product's stock
+        product = cart_item.product
+        product.stock_quantity += quantity_to_delete
+        product.save()
+        
         if quantity_to_delete >= cart_item.quantity:
             cart_item.delete()
         else:
@@ -83,22 +109,35 @@ def remove_from_cart(request):
             'message': 'Item not found.'
         }, status=404)
 
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .forms import PaymentUploadForm
+from .models import PaymentUpload, Order, Cart, CartItem
+from django.db.models import Sum
+
 @login_required
-def upload_payment(request, order_id=None):
+def upload_payment(request):
+    total_price = request.GET.get('total_price', 0)
+    order = Order.objects.create(user=request.user)
+
     if request.method == 'POST':
         form = PaymentUploadForm(request.POST, request.FILES)
         if form.is_valid():
             new_payment = form.save(commit=False)
-            if order_id:
-                new_payment.order = get_object_or_404(Order, id=order_id)
+            new_payment.amount = total_price
+            new_payment.order = order
             new_payment.save()
+            print(new_payment.id)
             send_payment_notification(new_payment)
             return redirect('success')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
-        form = PaymentUploadForm(initial={'order': order_id if order_id else None})
-    return render(request, 'cart/payment.html', {'form': form})
+        form = PaymentUploadForm() 
+
+    return render(request, 'cart/payment.html', {'form': form, 'total_price': total_price})
 
 
 def error_view(request):
@@ -152,7 +191,7 @@ def success_view(request):
     with transaction.atomic():
         account = get_object_or_404(Account, user=request.user)
         cart, _ = Cart.objects.get_or_create(account=account)
-        order = Order.objects.create(user=request.user)
+        order = Order.objects.filter(user=request.user).latest('order_date')
         logger.debug(f'Order created with ID: {order.id}')  # Log the order ID
 
         total_price = 0
@@ -166,8 +205,6 @@ def success_view(request):
         AdminOrder.objects.create(user=request.user, order=order, shipping_details='Your shipping details here')
 
         return redirect(reverse('order_details', args=[order.id]))
-
-
 
 
 from django.shortcuts import render, get_object_or_404
@@ -187,7 +224,10 @@ def order_details(request, order_id):
     }
     return render(request, 'cart/admin_order_detail.html', context)
 
-
+@login_required
+def order_history(request):
+    orders = Order.objects.filter(user=request.user).order_by('-order_date')
+    return render(request, 'cart/order_history.html', {'orders': orders})
 
 
 

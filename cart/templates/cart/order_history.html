@@ -1,0 +1,43 @@
+{% extends 'app_general/base.html' %}
+
+{% block content %}
+<h2>ประวัติคำสั่งซื้อของคุณ</h2>
+<table>
+    <thead>
+        <tr>
+            <th>วันที่สั่งซื้อ</th>
+            <th>สถานะ</th>
+            <th>รายการสินค้า</th>
+            <th>ยอดรวม</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.order_date }}</td>
+            <td>{{ order.get_order_status_display }}</td>
+            <td>
+                <ul>
+                    {% for item in order.order_items.all %}
+                    <li>{{ item.product.name }} ({{ item.quantity }})</li>
+                    {% endfor %}
+                </ul>
+            </td>
+            <td>
+                {% with total=0 %}
+                {% for item in order.order_items.all %}
+                {% with total=total|add:item.product.price|times:item.quantity %}
+                {% endwith %}
+                {% endfor %}
+                {{ total }}
+                {% endwith %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">ไม่มีคำสั่งซื้อ</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

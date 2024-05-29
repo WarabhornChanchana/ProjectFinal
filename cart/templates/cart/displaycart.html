@@ -2,6 +2,21 @@
 
 {% block content %}
 <h2 style="text-align:center;">ตะกร้าสินค้าของคุณ</h2>
+<form method="POST" action="{% url 'cartdisplay' %}">
+    {% csrf_token %}
+    <!-- Other form fields for product_id and quantity -->
+    
+    <div>
+        <input type="radio" id="contactChoice1" name="delivery_method" value="pickup" {% if delivery_method == 'pickup' %}checked{% endif %}>
+        <label for="contactChoice1">รับที่ร้าน</label>
+        
+        <input type="radio" id="contactChoice2" name="delivery_method" value="delivery" {% if delivery_method == 'delivery' %}checked{% endif %}>
+        <label for="contactChoice2">จัดส่ง</label>
+    </div>
+    
+    <button type="submit">Update Cart</button>
+</form>
+
 <table>
     <thead>
         <tr>
@@ -23,10 +38,10 @@
             <td>{{ item.product.price }}</td>
             <td>{{ item.total_price }}</td>
             <td>
-                <form class="remove-item-form" method="POST" data-item-id="{{ item.id }}">
+                <form class="remove-item-form" method="POST" action="{% url 'remove_from_cart' %}">
                     {% csrf_token %}
-                    <input type="number" name="quantity" value="1" min="1" max="{{ item.quantity }}"
-                        style="width:50px;">
+                    <input type="number" name="quantity" value="1" min="1" max="{{ item.quantity }}" style="width:50px;">
+                    <input type="hidden" name="item_id" value="{{ item.id }}">
                     <button type="submit">Remove</button>
                 </form>
             </td>
@@ -35,86 +50,75 @@
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="5" style="text-align:right;">Total: ฿{{ total_price }}</td>
+            <td colspan="5" style="text-align:right;">
+                Total: ฿{{ total_price }}{% if delivery_method == 'delivery' %} (รวมค่าส่ง ฿{{ shipping_fee }}){% endif %}
+            </td>
         </tr>
         <tr>
             <td colspan="5" style="text-align:right;">
-                <a href="{% url 'payment' %}" class="btn btn-primary">ชำระเงิน</a>
+                <a href="{% url 'payment' %}?total_price={{ total_price }}" class="btn btn-primary">ชำระเงิน</a>
             </td>
         </tr>
     </tfoot>
 </table>
 
 <style>
-
     table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 20px;
     }
-
-    th,
-    td {
+    th, td {
         border: 1px solid #ccc;
         padding: 8px;
         text-align: left;
     }
-
     th {
         background-color: #f2f2f2;
     }
-
     thead th {
         position: sticky;
         top: 0;
         background-color: #f9f9f9;
     }
-
-    input[type="number"],
-    button {
+    input[type="number"], button {
         padding: 5px;
     }
-
     button {
         background-color: red;
         color: white;
         border: none;
-        cursor: pointer;
+        cursor: pointer.
     }
-
     button:hover {
-        opacity: 0.8;
+        opacity: 0.8.
     }
-
     tfoot {
-        font-weight: bold;
-        background-color: #f9f9f9;
+        font-weight: bold.
+        background-color: #f9f9f9.
     }
-
     tfoot td {
-        border: none;
+        border: none.
     }
-
     .remove-item-form {
-        display: flex;
-        align-items: center;
-        gap: 10px;
+        display: flex.
+        align-items: center.
+        gap: 10px.
     }
 </style>
-
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
         $('.remove-item-form').submit(function (event) {
-            event.preventDefault();
-            var form = $(this);
-            var itemId = form.data('item-id');
-            var quantityToRemove = form.find('input[name="quantity"]').val();
+            event.preventDefault().
+            var form = $(this).
+            var itemId = form.find('input[name="item_id"]').val().
+            var quantityToRemove = form.find('input[name="quantity"]').val().
 
             $.ajax({
-                url: '{% url "remove_from_cart" %}',
-                method: 'POST',
+                url: form.attr('action').
+                method: 'POST'.
                 data: {
                     item_id: itemId,
                     quantity: quantityToRemove,
@@ -123,22 +127,22 @@
                 success: function (response) {
                     if (response.success) {
                         // Update the total price in the UI
-                        $('#total-price').text(response.total_price);
+                        $('#total-price').text(response.total_price).
                         // Optionally, display a success message
-                        alert(response.message);
+                        alert(response.message).
                         // Reload the page or update the cart UI as needed
-                        location.reload();
+                        location.reload().
                     } else {
                         // Handle errors
-                        alert(response.message);
+                        alert(response.message).
                     }
                 },
                 error: function (xhr, status, error) {
                     // Handle AJAX errors
-                    console.error(error);
+                    console.error(error).
                 }
-            });
-        });
-    });
+            }).
+        }).
+    }).
 </script>
 {% endblock %}

@@ -80,9 +80,11 @@
         <a href="{% url 'cartdisplay' %}" class="btn">ตะกร้าสินค้า</a>
         {% endif %}
         {% if request.user.account.role == "customer" %}
-          <a href="{% url 'history' %}" class="btn">ประวัติการสั่งซื้อ</a>
+        <a href="{% url 'order_history' %}">ประวัติคำสั่งซื้อ</a>
+
           {% elif request.user.account.role == "admin" %}
-          <a href="{% url 'history' %}" class="btn">ประวัติการขาย</a>
+          <a href="{% url 'order_history' %}">ประวัติคำสั่งซื้อ</a>
+
           <a href="{% url 'admin_order' %}" class="btn">คำสั่งซื้อ</a>
         {% endif %}
         <a href="{% url 'logout' %}" class="btn">ออกจากระบบ</a>

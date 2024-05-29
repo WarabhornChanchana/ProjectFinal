@@ -5,6 +5,7 @@ from django.conf import settings
 from .views import upload_payment, success_view
 from .views import order_details
 from .views import error_view
+
 urlpatterns = [
     path("", views.cartdisplay, name="cartdisplay"),
     path('remove/', views.remove_from_cart, name='remove_from_cart'),
@@ -12,11 +13,7 @@ urlpatterns = [
     path('success/', views.success_view, name='success'),
     path('order-details/<int:order_id>/', order_details, name='order_details'),
     path('error/', error_view, name='error_view'),
-    
-
-
-
-
+    path('order_history/', views.order_history, name='order_history'),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
