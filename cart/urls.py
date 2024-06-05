@@ -15,6 +15,7 @@ urlpatterns = [
     path('error/', error_view, name='error_view'),
     path('sales_history/', views.sales_history, name='sales_history'),
     path('purchase_history/', views.purchase_history, name='purchase_history'),
+    path('generate-receipt-image/<int:order_id>/', views.generate_receipt_image, name='generate_receipt_image'),
 
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

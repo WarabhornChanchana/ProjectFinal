@@ -5,6 +5,14 @@
 {% block content %}
 <h1>Sales History</h1>
 
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
 <table>
     <thead>
         <tr>
@@ -12,6 +20,7 @@
             <th>Date</th>
             <th>Status</th>
             <th>Total Price</th>
+            <th>Update Status</th>
         </tr>
     </thead>
     <tbody>
@@ -21,10 +30,22 @@
             <td>{{ detail.order.order_date|date:"Y-m-d H:i" }}</td>
             <td>{{ detail.order.get_order_status_display }}</td>
             <td>{{ detail.total_price }}</td>
+            <td>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="order_id" value="{{ detail.order.id }}">
+                    <select name="order_status">
+                        {% for status, display in order_status_choices %}
+                        <option value="{{ status }}" {% if detail.order.order_status == status %}selected{% endif %}>{{ display }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit">Update</button>
+                </form>
+            </td>
         </tr>
         {% empty %}
         <tr>
-            <td colspan="4">No sales history available.</td>
+            <td colspan="5">No sales history available.</td>
         </tr>
         {% endfor %}
     </tbody>

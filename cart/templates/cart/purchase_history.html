@@ -12,7 +12,6 @@
             <th>Date</th>
             <th>Status</th>
             <th>Total Price</th>
-            <th>Shipping Method</th>
             <th>Tracking Number</th>
             <th>Delivery Method</th>
         </tr>
@@ -24,13 +23,12 @@
             <td>{{ detail.order.order_date|date:"Y-m-d H:i" }}</td>
             <td>{{ detail.order.get_order_status_display }}</td>
             <td>{{ detail.total_price }}</td>
-            <td>{{ detail.shipping_method }}</td>
             <td>{{ detail.tracking_number }}</td>
             <td>{{ detail.delivery_method }}</td>
         </tr>
         {% empty %}
         <tr>
-            <td colspan="7">No purchase history available.</td>
+            <td colspan="6">No purchase history available.</td>
         </tr>
         {% endfor %}
     </tbody>
