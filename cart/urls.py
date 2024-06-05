@@ -13,7 +13,9 @@ urlpatterns = [
     path('success/', views.success_view, name='success'),
     path('order-details/<int:order_id>/', order_details, name='order_details'),
     path('error/', error_view, name='error_view'),
-    path('order_history/', views.order_history, name='order_history'),
+    path('sales_history/', views.sales_history, name='sales_history'),
+    path('purchase_history/', views.purchase_history, name='purchase_history'),
+
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

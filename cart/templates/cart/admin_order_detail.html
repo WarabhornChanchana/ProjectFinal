@@ -1,9 +1,12 @@
 {% extends 'app_general/base.html' %}
+
 {% block content %}
 <h1>Order Details</h1>
 <p>Order ID: {{ order.id }}</p>
 <p>Order Status: {{ order.get_order_status_display }}</p>
 <p>Order Date: {{ order.order_date }}</p>
+<p>Shipping Method: {{ order.get_shipping_method_display }}</p>
+<p>Tracking Number: {{ order.tracking_number }}</p>
 
 <h2>Items Purchased</h2>
 <table>
@@ -39,6 +42,28 @@
 {% endfor %}
 {% else %}
 <p>No payment details available.</p>
+{% endif %}
+
+<h2>Delivery Method</h2>
+{% if order.delivery_method == 'pickup' %}
+<p>รับที่ร้าน</p>
+{% elif order.delivery_method == 'delivery' %}
+<p>จัดส่ง</p>
+<h2>Shipping Address</h2>
+<p>Street: {{ address.street }}</p>
+<p>District: {{ address.district }}</p>
+<p>City: {{ address.city }}</p>
+<p>Postal Code: {{ address.postal_code }}</p>
+{% endif %}
+
+{% if user_role == 'admin' %}
+    <h2>Update Order Status and Shipping Details</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ order_form.as_p }}
+        {{ admin_order_form.as_p }}
+        <button type="submit">ยืนยันออร์เดอร์</button>
+    </form>
 {% endif %}
 
 {% endblock %}

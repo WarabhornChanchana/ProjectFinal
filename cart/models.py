@@ -4,11 +4,42 @@ from products.models import Product
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
+from django.utils import timezone
 
+
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    order_date = models.DateTimeField(default=timezone.now)
+    order_status_choices = [
+        ('PENDING', 'รอดำเนินการ'),
+        ('PROCESSING', 'กำลังดำเนินการ'),
+        ('SHIPPED', 'จัดส่งแล้ว'),
+        ('DELIVERED', 'จัดส่งสำเร็จ'),
+        ('CANCELLED', 'ยกเลิก'),
+    ]
+    order_status = models.CharField(max_length=20, choices=order_status_choices, default='PENDING')
+    tracking_number = models.CharField(max_length=50, blank=True, null=True)
+    SHIPPING_CHOICES = [
+        ('EMS', 'EMS'),
+        ('Kerry', 'Kerry'),
+        ('DHL', 'DHL'),
+        ('J&T Express', 'J&T Express'),
+        ('Flash Express', 'Flash Express'),
+    ]
+    delivery_method_choices = [
+        ('pickup', 'รับที่ร้าน'),
+        ('delivery', 'จัดส่ง'),
+    ]
+    delivery_method = models.CharField(max_length=20, choices=delivery_method_choices)
+
+    def __str__(self):
+        return f"Order {self.id} by {self.user.username}"
 
 class Cart(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
+    delivery_method = models.CharField(max_length=20, choices=Order.delivery_method_choices, default='pickup')
 
     class Meta:
         verbose_name = _('cart')
@@ -30,33 +61,18 @@ class CartItem(models.Model):
         return f"{self.quantity} x {self.product.name} in Cart {self.cart.id}"
 
 
-from django.db import models
-from django.utils import timezone
-
-class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
-    order_date = models.DateTimeField(default=timezone.now)  # Temporarily set default
-    order_status_choices = [
-        ('PENDING', 'Pending'),
-        ('PROCESSING', 'Processing'),
-        ('SHIPPED', 'Shipped'),
-        ('DELIVERED', 'Delivered'),
-        ('CANCELLED', 'Cancelled'),
-    ]
-    order_status = models.CharField(max_length=20, choices=order_status_choices, default='PENDING')
-
-    
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
-
 class AdminOrder(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin_orders')
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     payment_slip = models.ImageField(upload_to='payment_slips/')
-    shipping_details = models.TextField(blank=True)
-    tracking_number = models.CharField(max_length=50, blank=True)
+    shipping_details = models.CharField(max_length=50, choices=Order.SHIPPING_CHOICES, blank=True)
+
+
+   
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
 
 
 class PaymentUpload(models.Model):

@@ -1,0 +1,32 @@
+{% extends 'app_general/base.html' %}
+
+{% block title %}Sales History{% endblock %}
+
+{% block content %}
+<h1>Sales History</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Total Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for detail in order_details %}
+        <tr>
+            <td>{{ detail.order.id }}</td>
+            <td>{{ detail.order.order_date|date:"Y-m-d H:i" }}</td>
+            <td>{{ detail.order.get_order_status_display }}</td>
+            <td>{{ detail.total_price }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No sales history available.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

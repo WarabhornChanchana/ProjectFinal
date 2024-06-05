@@ -1,11 +1,13 @@
 from django.shortcuts import render,redirect
-
 from authenticate.models import Account
 from . forms import *
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import auth
 from formtools.wizard.views import SessionWizardView # type: ignore
-
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .forms import ProfileEditForm, AddressEditForm
 
 class RegistrationWizard(SessionWizardView):
     form_list = [RegisterForm, AddressForm]
@@ -17,10 +19,8 @@ class RegistrationWizard(SessionWizardView):
         user.email = user_form.cleaned_data['email']
         user.first_name = user_form.cleaned_data['first_name']
         user.last_name = user_form.cleaned_data['last_name']
-        
-        # Hash the password correctly
-        password = user_form.cleaned_data['password1']  # Assuming 'password1' is the field for password
-        user.set_password(password)  # This is the correct method to hash and set password
+        password = user_form.cleaned_data['password1'] 
+        user.set_password(password) 
 
         user.save()
 
@@ -60,12 +60,6 @@ def logout_user(request):
     auth.logout(request)
     return redirect('home')
 
-# views.py
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .forms import ProfileEditForm, AddressEditForm
 
 @login_required
 def edit_profile(request):
@@ -90,19 +84,6 @@ def edit_profile(request):
     })
 
 
-
-
-def change_password(request):
-    if request.method == 'POST':
-        form = PasswordChangeForm(request.user, request.POST)
-        if form.is_valid():
-            user = form.save()
-            # อัพเดตเซสชันแอทติบิวต์ของผู้ใช้หลังจากเปลี่ยนรหัสผ่านเพื่อไม่ให้ผู้ใช้ตัวเองถูกบังคับให้ออกจากระบบ
-            update_session_auth_hash(request, user)
-            return redirect('home')  # เปลี่ยนไปยังหน้าโปรไฟล์หลังจากการเปลี่ยนรหัสผ่าน
-    else:
-        form = PasswordChangeForm(request.user)
-    return render(request, 'authenticate/change_password.html', {'form': form})
 
 
 

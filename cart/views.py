@@ -11,24 +11,33 @@ from email.mime.image import MIMEImage
 from django.core.files.storage import default_storage
 from cart.models import Order, OrderItem, AdminOrder
 from .models import Cart, CartItem, PaymentUpload
-from authenticate.models import Account
+from authenticate.models import Account, Address
 from products.models import Product
-from .forms import PaymentUploadForm
-from .models import Order, OrderItem, PaymentUpload, AdminOrder
+from .forms import PaymentUploadForm, OrderUpdateForm, AdminOrderForm
 from django.db import transaction
-from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Sum
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Account, Cart, Order, OrderItem, AdminOrder, CartItem
-from products.models import Product  # Ensure this import is correct
+from .forms import OrderUpdateForm, AdminOrderForm
+from authenticate.models import Address 
+from .models import Order, PaymentUpload, AdminOrder, Cart, CartItem
+from products.models import Product
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import login_required
+from .models import Account, Cart, Product, CartItem
+import logging
 
-@login_required
+logger = logging.getLogger(__name__)
+
+@login_required 
 def cartdisplay(request):
     account = get_object_or_404(Account, user=request.user)
     cart, _ = Cart.objects.get_or_create(account=account)
     shipping_fee_per_item = 20  # ค่าส่งสินค้าต่อชิ้น
 
-    if request.method == 'POST':
-        delivery_method = request.POST.get('delivery_method')  # รับค่าจากฟอร์ม
+    if request.method == 'POST': 
+        delivery_method = request.POST.get('delivery_method', 'pickup')  # รับค่าจากฟอร์ม # รับค่าจากฟอร์มวิธีการจัดส่ง ค่าเริ่มต้นเป็น 'pickup' ถ้าไม่ได้ระบุ
         product_id = request.POST.get('product_id')
         quantity = int(request.POST.get('quantity', 0))
 
@@ -42,35 +51,34 @@ def cartdisplay(request):
                     else:
                         cart_item.quantity += quantity
                     cart_item.save()
-                    # Reduce the stock of the product
                     product.stock_quantity -= quantity
                     product.save()
             except Product.DoesNotExist:
-                pass  # Handle the case where the product does not exist
+                pass  
         else:
-            # Update the delivery method
-            request.session['delivery_method'] = delivery_method
+            cart.delivery_method = delivery_method
+            cart.save()
         return redirect('cartdisplay')
 
     cart_items = cart.cart_items.all()
-    total_price = 0
-    total_quantity = 0
+    total_price = 0  
+    total_quantity = 0 
     for item in cart_items:
-        item.total_price = item.quantity * item.product.price
-        total_price += item.total_price
-        total_quantity += item.quantity
+        item.total_price = item.quantity * item.product.price # คำนวณราคารวมของแต่ละสินค้า
+        total_price += item.total_price # เพิ่มราคารวมของสินค้าเข้าในราคารวมของตะกร้า
+        total_quantity += item.quantity # เพิ่มจำนวนสินค้าของสินค้าเข้าในจำนวนสินค้าทั้งหมดในตะกร้า
 
-    # ตรวจสอบค่า delivery method จาก session
-    delivery_method = request.session.get('delivery_method', 'pickup')
+    delivery_method = cart.delivery_method if hasattr(cart, 'delivery_method') else 'pickup'
     shipping_fee = total_quantity * shipping_fee_per_item if delivery_method == 'delivery' else 0
-    total_price += shipping_fee
+    total_price += shipping_fee # เพิ่มค่าจัดส่งเข้าในราคารวม
 
     return render(request, 'cart/displaycart.html', {
-        'cart_items': cart_items,
-        'total_price': total_price,
+        'cart_items': cart_items, 
+        'total_price': total_price, 
         'shipping_fee': shipping_fee,
         'delivery_method': delivery_method
     })
+
 
 
 @login_required
@@ -79,11 +87,7 @@ def remove_from_cart(request):
     item_id = request.POST.get('item_id')
     try:
         cart_item = get_object_or_404(CartItem, id=item_id, cart__account__user=request.user)
-        
-        # Get the quantity to delete from the request
         quantity_to_delete = int(request.POST.get('quantity', 1))
-        
-        # Add the quantity back to the product's stock
         product = cart_item.product
         product.stock_quantity += quantity_to_delete
         product.save()
@@ -93,36 +97,21 @@ def remove_from_cart(request):
         else:
             cart_item.quantity -= quantity_to_delete
             cart_item.save()
-
-        # Re-calculate the total price after the item has been removed/updated
-        total_price = sum(item.quantity * item.product.price for item in CartItem.objects.filter(cart__account__user=request.user))
-
-        return JsonResponse({
-            'success': True,
-            'total_price': total_price,
-            'message': 'Item removed successfully.'
-        })
+        return redirect('cartdisplay')
 
     except CartItem.DoesNotExist:
-        return JsonResponse({
-            'success': False,
-            'message': 'Item not found.'
-        }, status=404)
+        return redirect('cartdisplay')
 
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from .forms import PaymentUploadForm
-from .models import PaymentUpload, Order, Cart, CartItem
-from django.db.models import Sum
 
-@login_required
+@login_required 
 def upload_payment(request):
     total_price = request.GET.get('total_price', 0)
-    order = Order.objects.create(user=request.user)
+    delivery_method = request.GET.get('delivery_method', 'pickup')
+    order = Order.objects.create(user=request.user, delivery_method=delivery_method)
 
     if request.method == 'POST':
+        print(f'DM :{delivery_method},\n P:{total_price}')
         form = PaymentUploadForm(request.POST, request.FILES)
         if form.is_valid():
             new_payment = form.save(commit=False)
@@ -136,8 +125,8 @@ def upload_payment(request):
             messages.error(request, 'Please correct the errors below.')
     else:
         form = PaymentUploadForm() 
-
     return render(request, 'cart/payment.html', {'form': form, 'total_price': total_price})
+
 
 
 def error_view(request):
@@ -162,7 +151,7 @@ def send_payment_notification(payment_upload):
         image_data = image_file.read()
         if not image_data:
             print("Image file is empty.")
-            return  # Consider adding more robust notification or error handling here
+            return
 
     try:
         image = MIMEImage(image_data)
@@ -178,13 +167,8 @@ def send_payment_notification(payment_upload):
         email.attach(image)
         email.send()
     except Exception as e:
-        print(f"Failed to send email: {e}")  # Consider more robust error handling or logging
+        print(f"Failed to send email: {e}") 
 
-import logging
-
-logger = logging.getLogger(__name__)
-
-from django.urls import reverse
 
 @login_required
 def success_view(request):
@@ -192,7 +176,7 @@ def success_view(request):
         account = get_object_or_404(Account, user=request.user)
         cart, _ = Cart.objects.get_or_create(account=account)
         order = Order.objects.filter(user=request.user).latest('order_date')
-        logger.debug(f'Order created with ID: {order.id}')  # Log the order ID
+        logger.debug(f'Order created with ID: {order.id}') 
 
         total_price = 0
         cart_items = list(cart.cart_items.all())
@@ -207,27 +191,97 @@ def success_view(request):
         return redirect(reverse('order_details', args=[order.id]))
 
 
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Order, PaymentUpload, OrderItem
-
 @login_required
 def order_details(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     order_items = order.order_items.all()
     payment_uploads = PaymentUpload.objects.filter(order=order)
+    admin_order, created = AdminOrder.objects.get_or_create(order=order, user=order.user)
+    
+    address = Address.objects.filter(account=order.user.account).first()
+    user_role = request.user.account.role
+    delivery_method = request.session.get('delivery_method', 'pickup')
+
+    if request.method == 'POST':
+        order_form = OrderUpdateForm(request.POST, instance=order)
+        admin_order_form = AdminOrderForm(request.POST, instance=admin_order)
+        delivery_method = request.POST.get('delivery_method', delivery_method)
+
+        if order_form.is_valid() and admin_order_form.is_valid():
+            order = order_form.save(commit=False)
+            order.delivery_method = delivery_method
+            order.save()
+            admin_order.save()
+            messages.success(request, 'Order updated successfully.')
+            return redirect('sales_history' if user_role == 'admin' else 'purchase_history')
+    else:
+        order_form = OrderUpdateForm(instance=order)
+        admin_order_form = AdminOrderForm(instance=admin_order)
 
     context = {
         'order': order,
         'order_items': order_items,
         'payment_uploads': payment_uploads,
+        'order_form': order_form,
+        'admin_order_form': admin_order_form,
+        'address': address,
+        'delivery_method': delivery_method,
+        'user_role': user_role,
     }
     return render(request, 'cart/admin_order_detail.html', context)
 
+
+
 @login_required
-def order_history(request):
+def sales_history(request):
+    orders = Order.objects.filter(order_status__in=['SHIPPED', 'DELIVERED', 'CANCELLED']).order_by('-order_date')
+    order_details = []
+
+    for order in orders:
+        total_price = sum(item.product.price * item.quantity for item in order.order_items.all())
+        # เพิ่มค่าจัดส่งเข้าไปในราคารวม
+        if order.delivery_method == 'delivery':
+            shipping_fee = sum(item.quantity for item in order.order_items.all()) * 20  # สมมติว่าค่าจัดส่งต่อชิ้นคือ 20
+        else:
+            shipping_fee = 0
+        total_price += shipping_fee
+        order_details.append({
+            'order': order,
+            'total_price': total_price,
+        })
+
+    return render(request, 'cart/sales_history.html', {'order_details': order_details})
+
+@login_required
+def purchase_history(request):
     orders = Order.objects.filter(user=request.user).order_by('-order_date')
-    return render(request, 'cart/order_history.html', {'orders': orders})
+    order_details = []
+
+    for order in orders:
+        total_price = sum(item.product.price * item.quantity for item in order.order_items.all())
+        # Adding shipping fee to total price
+        if order.delivery_method == 'delivery':
+            shipping_fee = sum(item.quantity for item in order.order_items.all()) * 20  # Assuming shipping fee per item is 20
+        else:
+            shipping_fee = 0
+        total_price += shipping_fee
+        order_details.append({
+            'order': order,
+            'total_price': total_price,
+            'tracking_number': order.tracking_number,
+            'delivery_method': order.get_delivery_method_display(),  # Using get_FOO_display() to get the human-readable name
+        })
+
+    return render(request, 'cart/purchase_history.html', {'order_details': order_details})
+
+
+
+
+
+
+
+
+
 
 
 
