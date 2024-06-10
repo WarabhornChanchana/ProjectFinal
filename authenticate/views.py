@@ -35,10 +35,11 @@ class RegistrationWizard(SessionWizardView):
 
         return redirect('home')
 
-    
 def register(request):
     wizard_view = RegistrationWizard.as_view()
     return wizard_view(request)
+
+
 
 
 def login_user(request):
@@ -72,7 +73,6 @@ def edit_profile(request):
         if user_form.is_valid() and address_form.is_valid():
             user_form.save()
             address_form.save()
-            # messages.success(request, 'Profile updated successfully.')
             return redirect('home')
     else:
         user_form = ProfileEditForm(instance=user)

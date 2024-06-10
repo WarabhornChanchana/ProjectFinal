@@ -17,17 +17,17 @@
         </label>
     </div>
     
-    <button type="submit">Update Cart</button>
+    <button type="submit">อัปเดต</button>
 </form>
 
 <table>
     <thead>
         <tr>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Total</th>
-            <th>Actions</th>
+            <th>สินค้า</th>
+            <th>จำนวน/กก.</th>
+            <th>ราคา/กก.</th>
+            <th>ราคารวม</th>
+            <th>ลบสินค้า</th>
         </tr>
     </thead>
     <tbody>
@@ -45,7 +45,7 @@
                     {% csrf_token %}
                     <input type="number" name="quantity" value="1" min="1" max="{{ item.quantity }}" style="width:50px;">
                     <input type="hidden" name="item_id" value="{{ item.id }}">
-                    <button type="submit">Remove</button>
+                    <button type="submit">ลบ</button>
                 </form>
             </td>
         </tr>
@@ -54,7 +54,7 @@
     <tfoot>
         <tr>
             <td colspan="5" style="text-align:right;">
-                Total: ฿{{ total_price }}{% if delivery_method == 'delivery' %} (รวมค่าส่ง ฿{{ shipping_fee }}){% endif %}
+                ราคารวมสุทธิ: ฿{{ total_price }}{% if delivery_method == 'delivery' %} (รวมค่าส่ง ฿{{ shipping_fee }}){% endif %}
             </td>
         </tr>
         <tr>

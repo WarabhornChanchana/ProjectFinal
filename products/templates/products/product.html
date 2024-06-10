@@ -45,6 +45,20 @@
         background-color: #218838;
     }
 
+    /* Category filter styles */
+    .category-filter {
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .category-filter select {
+        border-radius: 20px;
+        padding: 10px;
+        border: 2px solid #28a745;
+        font-size: 1rem;
+    }
+
     /* Card styles */
     .card {
         background-color: #fff;
@@ -182,14 +196,25 @@
     }
 </style>
 
-
 <div class="container">
     <div class="search-bar">
         <form method="get" action="{% url 'product_search' %}" class="input-group">
-            <input type="text" class="form-control" placeholder="Search for products..." name="q">
-            <button class="btn btn-outline-secondary" type="submit">Search</button>
+            <input type="text" class="form-control" placeholder="ค้นหาสินค้า..." name="q">
+            <button class="btn btn-outline-secondary" type="submit">ค้นหา</button>
         </form>
     </div>
+
+    <div class="category-filter">
+        <form method="get" action="">
+            <select name="category" onchange="this.form.submit()">
+                <option value="">ทั้งหมด</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}" {% if category.id|stringformat:"s" == selected_category %}selected{% endif %}>{{ category.name }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
     <div>
         {% if accounts.role == "admin" %}
         <a href="{% url 'addproducts' %}" class="btn btn-add-product mt-3">เพิ่มสินค้า</a>

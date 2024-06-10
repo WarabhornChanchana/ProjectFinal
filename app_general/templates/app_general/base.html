@@ -73,18 +73,23 @@
   <div class="navbar">
     <div class="logo">Online Market Place</div>
     <div>
-      <a href="{% url 'home' %}" class="btn">หน้าแรก</a>
-      <a href="{% url 'products' %}" class="btn">สินค้า</a>
-      {% if user.is_authenticated and request.user.account.role == "customer" %}
-      <a href="{% url 'cartdisplay' %}" class="btn">ตะกร้าสินค้า</a>
-      <a href="{% url 'purchase_history' %}" class="btn">ประวัติการซื้อ</a>
-      {% elif request.user.account.role == "admin" %}
-      <a href="{% url 'admin_order' %}" class="btn">คำสั่งซื้อ</a>
-      <a href="{% url 'sales_history' %}" class="btn">ประวัติการขาย</a>
-      {% endif %}
-      <a href="{% url 'logout' %}" class="btn">ออกจากระบบ</a>
+        <a href="{% url 'home' %}" class="btn">หน้าแรก</a>
+        <a href="{% url 'products' %}" class="btn">สินค้า</a>
+        {% if user.is_authenticated %}
+            {% if request.user.account.role == "customer" %}
+                <a href="{% url 'cartdisplay' %}" class="btn">ตะกร้าสินค้า</a>
+                <a href="{% url 'purchase_history' %}" class="btn">ประวัติการซื้อ</a>
+            {% elif request.user.account.role == "admin" %}
+                <a href="{% url 'admin_order' %}" class="btn">คำสั่งซื้อ</a>
+                <a href="{% url 'sales_history' %}" class="btn">ประวัติการขาย</a>
+            {% endif %}
+            <a href="{% url 'logout' %}" class="btn">ออกจากระบบ</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn">เข้าสู่ระบบ</a>
+        {% endif %}
     </div>
-  </div>
+</div>
+
   
   {% comment %} <div class="hero">
     <div class="hero-text">

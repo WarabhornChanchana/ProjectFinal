@@ -240,7 +240,7 @@ def order_details(request, order_id):
 
 @login_required
 def sales_history(request):
-    orders = Order.objects.filter(order_status__in=['SHIPPED', 'DELIVERED', 'CANCELLED']).order_by('-order_date')
+    orders = Order.objects.filter(order_status__in=['SHIPPED', 'DELIVERED', 'CANCELLED', 'PREPARED', 'RECEIVED']).order_by('-order_date')
     order_details = []
 
     if request.method == 'POST':
@@ -250,9 +250,9 @@ def sales_history(request):
             order = Order.objects.get(id=order_id)
             order.order_status = order_status
             order.save()
-            messages.success(request, 'Order status updated successfully.')
+            messages.success(request, 'อัปเดตสถานะคำสั่งซื้อสำเร็จ.')
         except Order.DoesNotExist:
-            messages.error(request, 'Order does not exist.')
+            messages.error(request, 'คำสั่งซื้อไม่ถูกต้อง.')
 
     for order in orders:
         total_price = sum(item.product.price * item.quantity for item in order.order_items.all())
@@ -261,9 +261,20 @@ def sales_history(request):
         else:
             shipping_fee = 0
         total_price += shipping_fee
+
+        items = []
+        for item in order.order_items.all():
+            items.append({
+                'product': item.product,
+                'quantity': item.quantity,
+                'price': item.product.price,
+                'image_url': item.product.product_cover.url if item.product.product_cover else ''
+            })
+
         order_details.append({
             'order': order,
             'total_price': total_price,
+            'items': items,
         })
 
     order_status_choices = Order.order_status_choices
@@ -273,9 +284,10 @@ def sales_history(request):
         'order_status_choices': order_status_choices
     })
 
+
 @login_required
 def purchase_history(request):
-    orders = Order.objects.filter(user=request.user).order_by('-order_date')
+    orders = Order.objects.filter(order_status__in=['SHIPPED', 'DELIVERED', 'CANCELLED', 'PREPARED', 'RECEIVED']).order_by('-order_date')
     order_details = []
 
     for order in orders:
@@ -285,57 +297,35 @@ def purchase_history(request):
         else:
             shipping_fee = 0
         total_price += shipping_fee
+
+        items = []
+        for item in order.order_items.all():
+            items.append({
+                'product': item.product,
+                'quantity': item.quantity,
+                'price': item.product.price,
+                'image_url': item.product.product_cover.url if item.product.product_cover else ''
+            })
+
+        admin_order = AdminOrder.objects.filter(order=order).first()
+        shipping_details = admin_order.get_shipping_details_display() if admin_order else 'N/A'
+
         order_details.append({
             'order': order,
             'total_price': total_price,
             'tracking_number': order.tracking_number,
             'delivery_method': order.get_delivery_method_display(),
+            'shipping_details': shipping_details,
+            'items': items,
         })
 
     return render(request, 'cart/purchase_history.html', {'order_details': order_details})
 
 
-import imgkit
-from django.shortcuts import render, get_object_or_404
-from django.template.loader import render_to_string
-from django.http import HttpResponse
-from .models import Order, PaymentUpload, Address
 
-# กำหนดตำแหน่งที่ติดตั้ง wkhtmltoimage
-config = imgkit.config(wkhtmltoimage='"C:\Users\ACER\Downloads\wkhtmltox-0.12.6-1.msvc2015-win64.exe"')
 
-def generate_receipt_image(request, order_id):
-    order = get_object_or_404(Order, id=order_id)
-    order_items = order.order_items.all()
-    payment_uploads = PaymentUpload.objects.filter(order=order)
-    address = Address.objects.filter(account=order.user.account).first()
-    user_role = request.user.account.role
 
-    # คำนวณราคารวมและค่าจัดส่ง
-    total_price = sum(item.product.price * item.quantity for item in order_items)
-    shipping_fee = sum(item.quantity for item in order_items) * 20 if order.delivery_method == 'delivery' else 0
-    total_price_with_shipping = total_price + shipping_fee
 
-    # Render HTML template to string
-    html = render_to_string('cart/order_receipt.html', {
-        'order': order,
-        'order_items': order_items,
-        'payment_uploads': payment_uploads,
-        'address': address,
-        'user_role': user_role,
-        'total_price': total_price,
-        'shipping_fee': shipping_fee,
-        'total_price_with_shipping': total_price_with_shipping,
-    })
-
-    # Generate image from HTML
-    imgkit.from_string(html, '/tmp/order_receipt.png', config=config)
-
-    # Serve the image as HTTP response
-    with open('/tmp/order_receipt.png', 'rb') as img:
-        response = HttpResponse(img.read(), content_type="image/png")
-        response['Content-Disposition'] = f'attachment; filename="order_receipt_{order_id}.png"'
-        return response
 
 
 

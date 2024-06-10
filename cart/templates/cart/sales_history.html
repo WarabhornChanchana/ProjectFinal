@@ -1,53 +1,68 @@
 {% extends 'app_general/base.html' %}
 
-{% block title %}Sales History{% endblock %}
+{% block title %}ประวัติการขาย{% endblock %}
 
 {% block content %}
-<h1>Sales History</h1>
+<div class="container mt-5">
+    <h1 class="mb-4">ประวัติการขาย</h1>
 
-{% if messages %}
-    <ul class="messages">
-        {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
+    {% if messages %}
+        <ul class="alert alert-info">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
-<table>
-    <thead>
-        <tr>
-            <th>Order ID</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Total Price</th>
-            <th>Update Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for detail in order_details %}
-        <tr>
-            <td>{{ detail.order.id }}</td>
-            <td>{{ detail.order.order_date|date:"Y-m-d H:i" }}</td>
-            <td>{{ detail.order.get_order_status_display }}</td>
-            <td>{{ detail.total_price }}</td>
-            <td>
-                <form method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="order_id" value="{{ detail.order.id }}">
-                    <select name="order_status">
-                        {% for status, display in order_status_choices %}
-                        <option value="{{ status }}" {% if detail.order.order_status == status %}selected{% endif %}>{{ display }}</option>
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>หมายเลขคำสั่งซื้อ</th>
+                <th>วันที่</th>
+                <th>สถานะ</th>
+                <th>ราคารวม</th>
+                <th>รายละเอียดสินค้า</th>
+                <th>อัปเดตสถานะ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detail in order_details %}
+            <tr>
+                <td>{{ detail.order.id }}</td>
+                <td>{{ detail.order.order_date|date:"d/m/Y H:i" }}</td>
+                <td>{{ detail.order.get_order_status_display }}</td>
+                <td>{{ detail.total_price }}</td>
+                <td>
+                    <ul>
+                        {% for item in detail.items %}
+                        <li>
+                            <img src="{{ item.image_url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: cover;">
+                            <strong>{{ item.product.name }}</strong><br>
+                            จำนวน: {{ item.quantity }}<br>
+                            ราคา: {{ item.price }} บาท
+                        </li>
                         {% endfor %}
-                    </select>
-                    <button type="submit">Update</button>
-                </form>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="5">No sales history available.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+                    </ul>
+                </td>
+                <td>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="order_id" value="{{ detail.order.id }}">
+                        <select name="order_status" class="form-control">
+                            {% for status, display in order_status_choices %}
+                            <option value="{{ status }}" {% if detail.order.order_status == status %}selected{% endif %}>{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-primary mt-2">อัปเดต</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">ไม่มีประวัติการขาย</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

@@ -14,10 +14,13 @@ class Order(models.Model):
     order_status_choices = [
         ('PENDING', 'รอดำเนินการ'),
         ('PROCESSING', 'กำลังดำเนินการ'),
+        ('PREPARED', 'เตรียมของเสร็จแล้ว'),
         ('SHIPPED', 'จัดส่งแล้ว'),
         ('DELIVERED', 'จัดส่งสำเร็จ'),
+        ('RECEIVED', 'รับสินค้าแล้ว'),
         ('CANCELLED', 'ยกเลิก'),
     ]
+
     order_status = models.CharField(max_length=20, choices=order_status_choices, default='PENDING')
     tracking_number = models.CharField(max_length=50, blank=True, null=True)
     SHIPPING_CHOICES = [
@@ -83,11 +86,3 @@ class PaymentUpload(models.Model):
     payment_slip = models.FileField(upload_to='paymentslips/')
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='payments', null=True, blank=True) 
 
-
-
-
-    # payment_method_choices = [
-    #     ('CASH', 'Cash'),
-    #     ('BANK_TRANSFER', 'Bank Transfer'),
-    # ]
-    # payment_method = models.CharField(max_length=20, choices=payment_method_choices)

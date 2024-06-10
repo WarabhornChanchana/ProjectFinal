@@ -1,9 +1,9 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
-from django.contrib.auth.models import User
-from . models import *
+from .models import Product, Category
 
-class AddproductForm(forms.ModelForm):
+class AddProductForm(forms.ModelForm):
+    category = forms.ModelChoiceField(queryset=Category.objects.all(), empty_label="Select a Category", label="หมวดหมู่")
+
     class Meta:
         model = Product
-        fields = ['product_cover','name','descriptions','price','stock_quantity']
+        fields = ['name', 'descriptions', 'price', 'product_cover', 'stock_quantity', 'category']

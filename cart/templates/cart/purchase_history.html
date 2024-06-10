@@ -1,36 +1,54 @@
 {% extends 'app_general/base.html' %}
 
-{% block title %}Purchase History{% endblock %}
+{% block title %}ประวัติการซื้อ{% endblock %}
 
 {% block content %}
-<h1>Purchase History</h1>
+<div class="container mt-5">
+    <h1 class="mb-4">ประวัติการซื้อ</h1>
 
-<table>
-    <thead>
-        <tr>
-            <th>Order ID</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Total Price</th>
-            <th>Tracking Number</th>
-            <th>Delivery Method</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for detail in order_details %}
-        <tr>
-            <td>{{ detail.order.id }}</td>
-            <td>{{ detail.order.order_date|date:"Y-m-d H:i" }}</td>
-            <td>{{ detail.order.get_order_status_display }}</td>
-            <td>{{ detail.total_price }}</td>
-            <td>{{ detail.tracking_number }}</td>
-            <td>{{ detail.delivery_method }}</td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="6">No purchase history available.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <table class="table table-bordered table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>หมายเลขคำสั่งซื้อ</th>
+                <th>วันที่</th>
+                <th>สถานะ</th>
+                <th>ราคารวม</th>
+                <th>หมายเลขติดตาม</th>
+                <th>บริษัทขนส่ง</th>
+                <th>วิธีการจัดส่ง</th>
+                <th>รายละเอียดสินค้า</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detail in order_details %}
+            <tr>
+                <td>{{ detail.order.id }}</td>
+                <td>{{ detail.order.order_date|date:"d/m/Y H:i" }}</td>
+                <td>{{ detail.order.get_order_status_display }}</td>
+                <td>{{ detail.total_price }}</td>
+                <td>{{ detail.tracking_number }}</td>
+                <td>{{ detail.shipping_details }}</td>
+                <td>{{ detail.delivery_method }}</td>
+                 <!-- Display the shipping company name -->
+                <td>
+                    <ul>
+                        {% for item in detail.items %}
+                        <li>
+                            <img src="{{ item.image_url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: cover;">
+                            <strong>{{ item.product.name }}</strong><br>
+                            จำนวน: {{ item.quantity }}<br>
+                            ราคา: {{ item.price }} บาท
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center">ไม่มีประวัติการซื้อ</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

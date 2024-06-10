@@ -2,184 +2,135 @@
 
 {% block extra_css %}
 <style>
-  /* ใส่สไตล์ของสไลด์โชว์ที่นี่ */
-  .mySlides {
-      display: none;
-      width: 100%;
-      height: auto;
-  }
-  
-  /* ทำให้ข้อความ caption ดูดี */
-  .caption {
-      color: #fff;
-      font-size: 15px;
-      padding: 8px 12px;
-      position: absolute;
-      bottom: 8px;
-      width: 100%;
-      text-align: center;
-  }
-  
-  /* ตัวเลขข้อความในแต่ละสไลด์ */
-  .numbertext {
-      color: #f2f2f2;
-      font-size: 12px;
-      padding: 8px 12px;
-      position: absolute;
-      top: 0;
-  }
-  
-  /* ปุ่มถัดไปและก่อนหน้า */
-  .prev, .next {
-      cursor: pointer;
-      position: absolute;
-      top: 50%;
-      width: auto;
-      margin-top: -22px;
-      padding: 16px;
-      color: white;
-      font-weight: bold;
-      font-size: 18px;
-      transition: 0.6s ease;
-      border-radius: 0 3px 3px 0;
-      user-select: none;
-  }
-  
-  /* ตำแหน่งปุ่มก่อนหน้า */
-  .prev {
-      left: 0;
-      border-radius: 3px 0 0 3px;
-  }
-  
-  /* ตำแหน่งปุ่มถัดไป */
-  .next {
-      right: 0;
-      border-radius: 3px 0 0 3px;
-  }
-  
-  /* สีพื้นหลังสำหรับปุ่ม hover */
-  .prev:hover, .next:hover {
-      background-color: rgba(0,0,0,0.8);
-  }
-  
-  /* จุดนำทางสไลด์ */
-  .dot {
-      cursor: pointer;
-      height: 15px;
-      width: 15px;
-      margin: 0 2px;
-      background-color: #bbb;
-      border-radius: 50%;
-      display: inline-block;
-      transition: background-color 0.6s ease;
-  }
-  
-  .active, .dot:hover {
-      background-color: #717171;
-  }
-  
-  /* การเปลี่ยนแปลงเมื่อเลื่อนสไลด์ */
-  .fade {
-      animation-name: fade;
-      animation-duration: 1.5s;
-  }
-  
-  @keyframes fade {
-      from {opacity: .4} 
-      to {opacity: 1}
-  }
-  
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f8f9fa;
+        color: #343a40;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .header h1 {
+        font-size: 36px;
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .slideshow-container {
+        position: relative;
+        margin: auto;
+        overflow: hidden;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .static-slides {
+        display: flex;
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .static-slide {
+        flex: 1;
+        position: relative;
+    }
+
+    .static-slide img {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 10px;
+    }
+
+    .caption {
+        position: absolute;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+        font-size: 18px;
+        border-radius: 0 0 10px 10px;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .btn-custom {
+        display: inline-block;
+        padding: 10px 20px;
+        margin: 0 10px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-custom:hover {
+        background-color: #0056b3;
+    }
+
+    .profile-btn {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+    }
+
+    .profile-btn:hover {
+        background-color: #218838;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-    {% if user.is_authenticated %}
-        <h1>สวัสดี {{ user.username }}</h1>
-    {% if user.account.role == "customer" %}
-        <a href="{% url 'edit_profile' %}">Edit Profile</a>
-    {% endif %}
-
-    {% else %}
-        <p>โปรด <a href="{% url 'login' %}">เข้าสู่ระบบ</a> เพื่อใช้งาน</p>
-    {% endif %}
+    <div class="header">
+        {% if user.is_authenticated %}
+            <h1>สวัสดี {{ user.username }}</h1>
+            {% if user.account.role == "customer" %}
+                <a href="{% url 'edit_profile' %}" class="profile-btn">แก้ไขโปรไฟล์</a>
+            {% endif %}
+        {% else %}
+            <h1>ยินดีต้อนรับสู่ Online Market Place</h1>
+            <p>โปรด <a href="{% url 'login' %}" class="btn-custom">เข้าสู่ระบบ</a> เพื่อใช้งาน</p>
+        {% endif %}
+    </div>
 
     {% if user.is_authenticated and user.account.role == "admin" %}
-        {% comment %} <a href="{% url 'admin_order' %}" class="btn btn-primary mb-3" >คำสั่งซื้อ</a> {% endcomment %}
-        <a href="{% url 'add_slide' %}" class="btn btn-primary mb-3">เพิ่มรูปภาพสไลด์</a>
-    {% endif %}
-
-    <div class="slide-show-container">
-        {% for slide in slides %}
-        <div class="mySlides fade">
-            <div class="numbertext">{{ forloop.counter }} / {{ slides|length }}</div>
-            <img src="{{ slide.image.url }}" style="width:100%">
-            <div class="caption">{{ slide.caption }}</div>
+        <div class="button-container">
+            <a href="{% url 'add_slide' %}" class="btn-custom">เพิ่มรูปภาพหน้า Home</a>
+            <a href="{% url 'admin_order' %}" class="btn-custom">คำสั่งซื้อ</a>
         </div>
-        {% endfor %}
-        <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
-        <a class="next" onclick="plusSlides(1)">&#10095;</a>
-    </div>
-    <br>
-    <div style="text-align:center">
-        {% for slide in slides %}
-        <span class="dot" onclick="currentSlide({{ forloop.counter }})"></span>
-        {% endfor %}
+    {% endif %}
+<br>
+    <div class="slideshow-container">
+        <div class="static-slides">
+            {% for slide in slides %}
+                <div class="static-slide">
+                    <img src="{{ slide.image.url }}" alt="{{ slide.caption }}">
+                    <div class="caption">{{ slide.caption }}</div>
+                </div>
+            {% endfor %}
+        </div>
     </div>
 </div>
-
-
-<!DOCTYPE html>
-<html>
-<head>
-<style>
-  .slideshow-container {
-    max-width: 1000px;
-    position: relative;
-    margin: auto;
-  }
-
-  .mySlides {
-    display: none;
-    width: 100%;
-    height: auto;
-  }
-</style>
-</head>
-<body>
-
-<div class="slideshow-container">
-  <div class="mySlides">
-    <img src="image1.jpg" style="width:100%">
-  </div>
-
-  <div class="mySlides">
-    <img src="image2.jpg" style="width:100%">
-  </div>
-
-  <div class="mySlides">
-    <img src="image3.jpg" style="width:100%">
-  </div>
-</div>
-
-<script>
-  let slideIndex = 0;
-  showSlides();
-
-  function showSlides() {
-    let slides = document.getElementsByClassName("mySlides");
-    for (let i = 0; i < slides.length; i++) {
-      slides[i].style.display = "none";
-    }
-    slideIndex++;
-    if (slideIndex > slides.length) { slideIndex = 1 }
-    slides[slideIndex - 1].style.display = "block";
-    setTimeout(showSlides, 2000); // เปลี่ยนทุก 2 วินาที
-  }
-</script>
-
-</body>
-</html>
-
-  {% endblock %}
-
+{% endblock %}

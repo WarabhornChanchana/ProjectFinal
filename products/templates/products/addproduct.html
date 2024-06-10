@@ -1,52 +1,77 @@
 {% extends "app_general/base.html" %}
-{% load crispy_forms_tags %}
 
 {% block title %}
-<title>เพิ่มสินค้า</title>
+<title>เพิ่ม/แก้ไขสินค้า</title>
 {% endblock %}
 
 {% block content %}
+<style>
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-control {
+        border-radius: 5px;
+        padding: 10px;
+        border: 1px solid #ced4da;
+    }
+
+    .form-control:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+
+    .btn-primary {
+        background-color: #28a745;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: #218838;
+    }
+</style>
+
 <div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-body">
-          <h2 class="card-title">เพิ่มสินค้า</h2>
-          <form method="POST" autocomplete="off" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ productform|crispy }}
-            <select class="form-select mt-3" aria-label="Default select example" name="cat">
-              <option disabled selected>เลือกหมวดหมู่</option>
-              <!-- เพิ่มตัวเลือกที่ไม่สามารถเลือกได้และถูกเลือกเป็นค่าเริ่มต้น -->
-              {% for cat in categorys %}
-              <option>{{cat.name}}</option>
-              {% endfor %}
-            </select>
-
-              <style>
-                .button-container {
-                  display: flex;
-                  justify-content: space-between;
-                }
-
-                .btn-equal-height {
-                  height: 48px;
-                  /* ปรับความสูงตามที่ต้องการ */
-                }
-              </style>
-
-              <div class="button-container">
-                <a href="{% url 'products' %}"
-                  class="btn btn-secondary btn-lg btn-block mt-3 btn-equal-height">กลับไปยังรายการสินค้า</a>
-                <button type="submit" class="btn btn-success btn-lg btn-block btn-equal-height">ยืนยัน</button>
-              </div>
-
-            </div>
-          </form>
+    <h2>{{ product.id|default:"เพิ่มสินค้าใหม่" }}</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_name">ชื่อสินค้า</label>
+            {{ form.name }}
         </div>
-      </div>
-    </div>
-  </div>
+        <div class="form-group">
+            <label for="id_descriptions">รายละเอียด</label>
+            {{ form.descriptions }}
+        </div>
+        <div class="form-group">
+            <label for="id_price">ราคา</label>
+            {{ form.price }}
+        </div>
+        <div class="form-group">
+            <label for="id_product_cover">รูปภาพ</label>
+            {{ form.product_cover }}
+        </div>
+        <div class="form-group">
+            <label for="id_stock_quantity">จำนวนคงเหลือ</label>
+            {{ form.stock_quantity }}
+        </div>
+        <div class="form-group">
+            <label for="id_category">หมวดหมู่</label>
+            {{ form.category }}
+        </div>
+        <button type="submit" class="btn btn-primary">บันทึก</button>
+    </form>
 </div>
-
 {% endblock %}
