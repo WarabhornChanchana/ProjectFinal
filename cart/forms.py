@@ -5,6 +5,8 @@ from django import forms
 from .models import Order
 from django import forms
 from .models import Order, AdminOrder
+from .models import Review
+
 
 class PaymentUploadForm(forms.ModelForm):
     class Meta:
@@ -34,4 +36,20 @@ class AdminOrderForm(forms.ModelForm):
         widgets = {
             'shipping_details': forms.Select(choices=Order.SHIPPING_CHOICES),
         }
+
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'comment']
+        widgets = {
+            'rating': forms.RadioSelect,
+            'comment': forms.Textarea(attrs={'rows': 3}),
+        }
+        labels = {
+            'rating': 'Rating',
+            'comment': 'Comment',
+        }
+
 

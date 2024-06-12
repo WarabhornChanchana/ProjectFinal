@@ -17,35 +17,41 @@
                 <th>บริษัทขนส่ง</th>
                 <th>วิธีการจัดส่ง</th>
                 <th>รายละเอียดสินค้า</th>
+                <th>รีวิว</th>
             </tr>
         </thead>
         <tbody>
             {% for detail in order_details %}
+            {% for item in detail.items %}
             <tr>
-                <td>{{ detail.order.id }}</td>
-                <td>{{ detail.order.order_date|date:"d/m/Y H:i" }}</td>
-                <td>{{ detail.order.get_order_status_display }}</td>
-                <td>{{ detail.total_price }}</td>
-                <td>{{ detail.tracking_number }}</td>
-                <td>{{ detail.shipping_details }}</td>
-                <td>{{ detail.delivery_method }}</td>
-                 <!-- Display the shipping company name -->
+                {% if forloop.first %}
+                <td rowspan="{{ detail.items|length }}">{{ detail.order.id }}</td>
+                <td rowspan="{{ detail.items|length }}">{{ detail.order.order_date|date:"d/m/Y H:i" }}</td>
+                <td rowspan="{{ detail.items|length }}">{{ detail.order.get_order_status_display }}</td>
+                <td rowspan="{{ detail.items|length }}">{{ detail.total_price }}</td>
+                <td rowspan="{{ detail.items|length }}">{{ detail.tracking_number }}</td>
+                <td rowspan="{{ detail.items|length }}">{{ detail.shipping_details }}</td>
+                <td rowspan="{{ detail.items|length }}">{{ detail.delivery_method }}</td>
+                {% endif %}
                 <td>
-                    <ul>
-                        {% for item in detail.items %}
-                        <li>
-                            <img src="{{ item.image_url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: cover;">
-                            <strong>{{ item.product.name }}</strong><br>
-                            จำนวน: {{ item.quantity }}<br>
-                            ราคา: {{ item.price }} บาท
-                        </li>
-                        {% endfor %}
-                    </ul>
+                    <img src="{{ item.image_url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: cover;">
+                    <strong>{{ item.product.name }}</strong><br>
+                    จำนวน: {{ item.quantity }}<br>
+                    ราคา: {{ item.price }} บาท
+                </td>
+                <td>
+                    {% if item.review %}
+                    <strong>คะแนน:</strong> {{ item.review.rating }}<br>
+                    <strong>ความคิดเห็น:</strong> {{ item.review.comment }}
+                    {% else %}
+                    <a href="{% url 'submit_review' detail.order.id item.product.id %}">รีวิวสินค้า</a>
+                    {% endif %}
                 </td>
             </tr>
+            {% endfor %}
             {% empty %}
             <tr>
-                <td colspan="8" class="text-center">ไม่มีประวัติการซื้อ</td>
+                <td colspan="9" class="text-center">ไม่มีประวัติการซื้อ</td>
             </tr>
             {% endfor %}
         </tbody>

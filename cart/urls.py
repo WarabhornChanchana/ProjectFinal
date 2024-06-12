@@ -15,6 +15,7 @@ urlpatterns = [
     path('error/', error_view, name='error_view'),
     path('sales_history/', views.sales_history, name='sales_history'),
     path('purchase_history/', views.purchase_history, name='purchase_history'),
+    path('submit_review/<int:order_id>/<int:product_id>/', views.submit_review, name='submit_review'),
 
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

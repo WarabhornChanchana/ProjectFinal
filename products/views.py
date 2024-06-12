@@ -59,15 +59,32 @@ def deleteProduct(request, pk):
     product.delete()
     return redirect('products')
 
+from django.db.models import Q
+
 def product_search(request):
     query = request.GET.get('q', '')
     category_id = request.GET.get('category', None)
     account = None
+
     if request.user.is_authenticated:
         try:
             account = Account.objects.get(user=request.user)
         except Account.DoesNotExist:
             pass
-    products = Product.objects.filter(name__icontains=query)
-    products = Category.objects.filter(name__icontains=query)
-    return render(request, 'products/product.html', {'products': products, 'accounts': account})
+
+    # Build the query based on both name and category
+    search_filter = Q(name__icontains=query)
+    if category_id:
+        search_filter &= Q(category__id=category_id)
+
+    products = Product.objects.filter(search_filter)
+    categories = Category.objects.all()
+
+    return render(request, 'products/product.html', {
+        'products': products,
+        'accounts': account,
+        'categories': categories,
+        'selected_category': category_id,
+        'query': query,
+    })
+

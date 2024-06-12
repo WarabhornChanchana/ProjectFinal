@@ -1,0 +1,14 @@
+{% extends "app_general/base.html" %}
+
+{% block title %}รีวิวสินค้า{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">รีวิวสินค้า: {{ product.name }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">ส่งรีวิว</button>
+    </form>
+</div>
+{% endblock %}

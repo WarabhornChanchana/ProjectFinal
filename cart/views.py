@@ -31,7 +31,8 @@ import imgkit
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from .models import Order
-
+from .models import Order, Review, Product
+from .forms import ReviewForm
 logger = logging.getLogger(__name__)
 
 @login_required 
@@ -304,22 +305,38 @@ def purchase_history(request):
                 'product': item.product,
                 'quantity': item.quantity,
                 'price': item.product.price,
-                'image_url': item.product.product_cover.url if item.product.product_cover else ''
+                'image_url': item.product.product_cover.url if item.product.product_cover else '',
+                'review': Review.objects.filter(order=order, product=item.product).first(),
             })
-
-        admin_order = AdminOrder.objects.filter(order=order).first()
-        shipping_details = admin_order.get_shipping_details_display() if admin_order else 'N/A'
 
         order_details.append({
             'order': order,
             'total_price': total_price,
             'tracking_number': order.tracking_number,
             'delivery_method': order.get_delivery_method_display(),
-            'shipping_details': shipping_details,
             'items': items,
         })
 
     return render(request, 'cart/purchase_history.html', {'order_details': order_details})
+
+@login_required
+def submit_review(request, order_id, product_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.user = request.user
+            review.order = order
+            review.product = product
+            review.save()
+            return redirect('purchase_history')
+    else:
+        form = ReviewForm()
+
+    return render(request, 'cart/review.html', {'form': form, 'order': order, 'product': product})
 
 
 
