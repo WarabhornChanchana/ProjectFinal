@@ -1,0 +1,154 @@
+{% extends "app_general/base.html" %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+    }
+    .dashboard-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .dashboard-header h1 {
+        font-size: 36px;
+        font-weight: bold;
+        color: #007bff;
+    }
+    .card {
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .card h2 {
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+    .reviews-list, .orders-list {
+        list-style: none;
+        padding: 0;
+    }
+    .reviews-list li, .orders-list li {
+        margin-bottom: 10px;
+    }
+    .monthly-sales-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .monthly-sales-table th, .monthly-sales-table td {
+        border: 1px solid #dee2e6;
+        padding: 8px;
+        text-align: left;
+    }
+    .monthly-sales-table th {
+        background-color: #f8f9fa;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>แดชบอร์ดผู้ดูแลระบบ</h1>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <h2>ยอดขายรวม</h2>
+                <p>{{ total_sales }} บาท</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <h2>จำนวนรีวิวทั้งหมด</h2>
+                <p>{{ total_reviews }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <h2>ยอดขายรายเดือน</h2>
+                <table class="monthly-sales-table">
+                    <thead>
+                        <tr>
+                            <th>ปี</th>
+                            <th>เดือน</th>
+                            <th>ยอดขายรวม (บาท)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in monthly_sales %}
+                        <tr>
+                            <td>{{ sale.year }}</td>
+                            <td>{{ sale.month }}</td>
+                            <td>{{ sale.total }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <h2>รีวิวล่าสุด</h2>
+                <ul class="reviews-list">
+                    {% for review in reviews %}
+                        <li>
+                            <strong>{{ review.product.name }}</strong> โดย {{ review.user.username }}<br>
+                            {{ review.comment }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <h2>คำสั่งซื้อล่าสุด</h2>
+                <ul class="orders-list">
+                    {% for order in recent_orders %}
+                        <li>
+                            รหัสคำสั่งซื้อ: {{ order.id }}<br>
+                            วันที่: {{ order.order_date|date:"d/m/Y H:i" }}<br>
+                            ยอดรวม: {{ order.total_price }} บาท<br>
+                            สถานะ: {{ order.get_order_status_display }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <h2>คะแนนรีวิวสินค้า</h2>
+                <table class="monthly-sales-table">
+                    <thead>
+                        <tr>
+                            <th>สินค้า</th>
+                            <th>คะแนนเฉลี่ย</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product_rating in product_ratings %}
+                        <tr>
+                            <td>{{ product_rating.product__name }}</td>
+                            <td>{{ product_rating.average_rating }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

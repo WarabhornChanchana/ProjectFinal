@@ -3,7 +3,7 @@ from authenticate.models import Account
 from . forms import *
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import auth
-from formtools.wizard.views import SessionWizardView # type: ignore
+from formtools.wizard.views import SessionWizardView
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -38,8 +38,6 @@ class RegistrationWizard(SessionWizardView):
 def register(request):
     wizard_view = RegistrationWizard.as_view()
     return wizard_view(request)
-
-
 
 
 def login_user(request):

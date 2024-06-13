@@ -98,6 +98,56 @@
     .profile-btn:hover {
         background-color: #218838;
     }
+
+    /* Reviews Section */
+    .reviews-section {
+        margin-top: 40px;
+    }
+
+    .review {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        background-color: #fff;
+    }
+
+    .review h4 {
+        margin-top: 0;
+        color: #007bff;
+    }
+
+    .review p {
+        margin: 5px 0;
+    }
+
+    /* Contact Section */
+    .contact-section {
+        margin-top: 40px;
+        padding: 20px;
+        background-color: #e9ecef;
+        border-radius: 10px;
+    }
+
+    .contact-section h2 {
+        margin-bottom: 20px;
+    }
+
+    .contact-section p {
+        margin: 5px 0;
+    }
+
+    /* Map Section */
+    .map-section {
+        margin-top: 40px;
+    }
+
+    .map-section iframe {
+        width: 100%;
+        height: 400px;
+        border: none;
+        border-radius: 10px;
+    }
 </style>
 {% endblock %}
 
@@ -121,8 +171,16 @@
             <a href="{% url 'admin_order' %}" class="btn-custom">คำสั่งซื้อ</a>
         </div>
     {% endif %}
-<br>
-    <div class="slideshow-container">
+    
+    {% if user.is_authenticated and user.account.role == 'admin' %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
+    </li>
+    {% endif %}
+
+
+
+    <div class="slideshow-container mt-5">
         <div class="static-slides">
             {% for slide in slides %}
                 <div class="static-slide">
@@ -132,5 +190,32 @@
             {% endfor %}
         </div>
     </div>
+
+
+    <div class="contact-section mt-5">
+        <h2>ช่องทางการติดต่อ</h2>
+        <p><strong>ที่อยู่:</strong> 25/4 ตำบล:ไร่น้อย อำเภอ:เมือง จังหวัด:อุบลราชธานี</p>
+        <p><strong>โทร:</strong> 012-345-6789</p>
+        <p><strong>ไลน์</strong> onlinemarketplace</p>
+    </div>
+
+
+    <div class="map-section mt-5">
+        <h2>แผนที่ไปยังร้าน</h2>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15395.738334492064!2d104.81965806193556!3d15.271362864868449!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3116881a682ad541%3A0xf33bf8de89a4748c!2z4Lir4Lih4Li54LmIIDE1IOC4reC4s-C5gOC4oOC4reC5gOC4oeC4t-C4reC4h-C4reC4uOC4muC4peC4o-C4suC4iuC4mOC4suC4meC4tSDguK3guLjguJrguKXguKPguLLguIrguJjguLLguJnguLUgMzQwMDA!5e0!3m2!1sth!2sth!4v1718206636883!5m2!1sth!2sth" width="60" height="40" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
 </div>
+
+<div class="reviews-section mt-5">
+    <h2>ความคิดเห็นล่าสุดจากลูกค้า</h2>
+    {% for review in reviews %}
+    <div class="review">
+        <h4>{{ review.product.name }}</h4>
+        <p><strong>{{ review.user.username }}</strong> rated <strong>{{ review.rating }}</strong> stars</p>
+        <p>{{ review.comment }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+
 {% endblock %}

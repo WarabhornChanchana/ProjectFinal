@@ -33,7 +33,6 @@ class RegisterForm(forms.ModelForm):
 
 
 
-
 class LoginForm(AuthenticationForm):
     username = forms.CharField(label='Username', max_length=150, widget=forms.TextInput)
     password = forms.CharField(label='Password', widget=forms.PasswordInput)
@@ -50,14 +49,6 @@ class AddressForm(forms.ModelForm):
             'postal_code': 'รหัสไปรษณีย์',
         }
 
-
-# from django import forms
-# from .models import Profile
-
-# class ProfileForm(forms.ModelForm):
-#     class Meta:
-#         model = Profile
-#         fields = ['first_name', 'last_name', 'email', 'phone_number', 'street', 'district', 'city', 'postal_code']
 
 class ProfileEditForm(forms.ModelForm):
     first_name = forms.CharField(max_length=100, required=False, label='ชื่อจริง')

@@ -1,7 +1,5 @@
 {% extends 'app_general/base.html' %}
 
-{% block title %}ประวัติการซื้อ{% endblock %}
-
 {% block content %}
 <div class="container mt-5">
     <h1 class="mb-4">ประวัติการซื้อ</h1>
@@ -9,15 +7,16 @@
     <table class="table table-bordered table-hover">
         <thead class="thead-dark">
             <tr>
-                <th>หมายเลขคำสั่งซื้อ</th>
+                <th>ID</th>
                 <th>วันที่</th>
                 <th>สถานะ</th>
                 <th>ราคารวม</th>
-                <th>หมายเลขติดตาม</th>
+                <th>เลขพัสดุ</th>
                 <th>บริษัทขนส่ง</th>
-                <th>วิธีการจัดส่ง</th>
+                <th>การจัดส่ง</th>
                 <th>รายละเอียดสินค้า</th>
                 <th>รีวิว</th>
+                <th>อัปเดตสถานะ</th>
             </tr>
         </thead>
         <tbody>
@@ -34,7 +33,6 @@
                 <td rowspan="{{ detail.items|length }}">{{ detail.delivery_method }}</td>
                 {% endif %}
                 <td>
-                    <img src="{{ item.image_url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: cover;">
                     <strong>{{ item.product.name }}</strong><br>
                     จำนวน: {{ item.quantity }}<br>
                     ราคา: {{ item.price }} บาท
@@ -44,14 +42,26 @@
                     <strong>คะแนน:</strong> {{ item.review.rating }}<br>
                     <strong>ความคิดเห็น:</strong> {{ item.review.comment }}
                     {% else %}
-                    <a href="{% url 'submit_review' detail.order.id item.product.id %}">รีวิวสินค้า</a>
+                    <a href="{% url 'submit_review' detail.order.id item.product.id %}" class="btn btn-primary">รีวิวสินค้า</a>
                     {% endif %}
                 </td>
+                {% if forloop.first %}
+                <td rowspan="{{ detail.items|length }}">
+                    <form method="post" action="{% url 'update_order_status' detail.order.id %}">
+                        {% csrf_token %}
+                        <select name="order_status" class="form-control mb-2">
+                            <option value="DELIVERED" {% if detail.order.order_status == 'DELIVERED' %}selected{% endif %}>จัดส่งสำเร็จ</option>
+                            <option value="RECEIVED" {% if detail.order.order_status == 'RECEIVED' %}selected{% endif %}>รับสินค้าแล้ว</option>
+                        </select>
+                        <button type="submit" class="btn btn-success">อัปเดตสถานะ</button>
+                    </form>
+                </td>
+                {% endif %}
             </tr>
             {% endfor %}
             {% empty %}
             <tr>
-                <td colspan="9" class="text-center">ไม่มีประวัติการซื้อ</td>
+                <td colspan="10" class="text-center">ไม่มีประวัติการซื้อ</td>
             </tr>
             {% endfor %}
         </tbody>

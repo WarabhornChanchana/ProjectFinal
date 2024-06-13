@@ -1,9 +1,5 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.views.decorators.http import require_POST
-from django.http import JsonResponse
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
@@ -22,24 +18,20 @@ from django.contrib.auth.decorators import login_required
 from .forms import OrderUpdateForm, AdminOrderForm
 from authenticate.models import Address 
 from .models import Order, PaymentUpload, AdminOrder, Cart, CartItem
-from products.models import Product
 from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib.auth.decorators import login_required
 from .models import Account, Cart, Product, CartItem
 import logging
-import imgkit
-from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
-from .models import Order
 from .models import Order, Review, Product
 from .forms import ReviewForm
 logger = logging.getLogger(__name__)
+
+
 
 @login_required 
 def cartdisplay(request):
     account = get_object_or_404(Account, user=request.user)
     cart, _ = Cart.objects.get_or_create(account=account)
-    shipping_fee_per_item = 20  # ค่าส่งสินค้าต่อชิ้น
+    shipping_fee_per_item = 20 
 
     if request.method == 'POST': 
         delivery_method = request.POST.get('delivery_method', 'pickup')  # รับค่าจากฟอร์ม # รับค่าจากฟอร์มวิธีการจัดส่ง ค่าเริ่มต้นเป็น 'pickup' ถ้าไม่ได้ระบุ
@@ -83,7 +75,6 @@ def cartdisplay(request):
         'shipping_fee': shipping_fee,
         'delivery_method': delivery_method
     })
-
 
 
 @login_required
@@ -276,6 +267,7 @@ def sales_history(request):
             'order': order,
             'total_price': total_price,
             'items': items,
+            'delivery_method': order.get_delivery_method_display(),
         })
 
     order_status_choices = Order.order_status_choices
@@ -285,12 +277,24 @@ def sales_history(request):
         'order_status_choices': order_status_choices
     })
 
+@login_required
+def update_order_status(request, order_id):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if request.method == 'POST':
+        new_status = request.POST.get('order_status')
+        if new_status in ['DELIVERED', 'RECEIVED']:
+            order.order_status = new_status
+            order.save()
+            messages.success(request, 'อัปเดตสถานะคำสั่งซื้อสำเร็จ.')
+        else:
+            messages.error(request, 'ไม่สามารถอัปเดตสถานะคำสั่งซื้อได้.')
+    return redirect('purchase_history')
 
+# ฟังก์ชันนี้แสดงประวัติการซื้อ
 @login_required
 def purchase_history(request):
-    orders = Order.objects.filter(order_status__in=['SHIPPED', 'DELIVERED', 'CANCELLED', 'PREPARED', 'RECEIVED']).order_by('-order_date')
+    orders = Order.objects.filter(user=request.user).order_by('-order_date')
     order_details = []
-
     for order in orders:
         total_price = sum(item.product.price * item.quantity for item in order.order_items.all())
         if order.delivery_method == 'delivery':
@@ -309,15 +313,20 @@ def purchase_history(request):
                 'review': Review.objects.filter(order=order, product=item.product).first(),
             })
 
+        admin_order = AdminOrder.objects.filter(order=order).first()
+        shipping_details = admin_order.get_shipping_details_display() if admin_order else 'N/A'
+
         order_details.append({
             'order': order,
             'total_price': total_price,
             'tracking_number': order.tracking_number,
             'delivery_method': order.get_delivery_method_display(),
+            'shipping_details': shipping_details,
             'items': items,
         })
 
     return render(request, 'cart/purchase_history.html', {'order_details': order_details})
+
 
 @login_required
 def submit_review(request, order_id, product_id):

@@ -1,83 +1,67 @@
 {% extends 'app_general/base.html' %}
 
-{% block title %}ประวัติการซื้อ{% endblock %}
-
 {% block content %}
 <div class="container mt-5">
-    <h1 class="mb-4">ประวัติการซื้อ</h1>
+    <h1 class="mb-4">ประวัติการขาย</h1>
+
+    {% if messages %}
+        <ul class="alert alert-info">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
     <table class="table table-bordered table-hover">
         <thead class="thead-dark">
             <tr>
                 <th>หมายเลขคำสั่งซื้อ</th>
                 <th>วันที่</th>
+                <th>วิธีการจัดส่ง</th>
                 <th>สถานะ</th>
                 <th>ราคารวม</th>
-                <th>หมายเลขติดตาม</th>
-                <th>บริษัทขนส่ง</th>
-                <th>วิธีการจัดส่ง</th>
                 <th>รายละเอียดสินค้า</th>
-                <th>รีวิว</th>
+                <th>อัปเดตสถานะ</th>
             </tr>
         </thead>
         <tbody>
             {% for detail in order_details %}
-            {% for item in detail.items %}
             <tr>
-                {% if forloop.first %}
-                <td rowspan="{{ detail.items|length }}">{{ detail.order.id }}</td>
-                <td rowspan="{{ detail.items|length }}">{{ detail.order.order_date|date:"d/m/Y H:i" }}</td>
-                <td rowspan="{{ detail.items|length }}">{{ detail.order.get_order_status_display }}</td>
-                <td rowspan="{{ detail.items|length }}">{{ detail.total_price }}</td>
-                <td rowspan="{{ detail.items|length }}">{{ detail.tracking_number }}</td>
-                <td rowspan="{{ detail.items|length }}">{{ detail.shipping_details }}</td>
-                <td rowspan="{{ detail.items|length }}">{{ detail.delivery_method }}</td>
-                {% endif %}
+                <td>{{ detail.order.id }}</td>
+                <td>{{ detail.order.order_date|date:"d/m/Y H:i" }}</td>
+                <td> {{ detail.delivery_method }}</td>
+                <td>{{ detail.order.get_order_status_display }}</td>
+                <td>{{ detail.total_price }}</td>
                 <td>
-                    <img src="{{ item.image_url }}" alt="{{ item.product.name }}" style="width: 50px; height: 50px; object-fit: cover;">
-                    <strong>{{ item.product.name }}</strong><br>
-                    จำนวน: {{ item.quantity }}<br>
-                    ราคา: {{ item.price }} บาท
+                    <ul>
+                        {% for item in detail.items %}
+                        <li>
+                            <strong>{{ item.product.name }}</strong><br>
+                            จำนวน: {{ item.quantity }}<br>
+                            ราคา: {{ item.price }} บาท
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </td>
                 <td>
-                    {% if item.review %}
-                    <div class="rating">
-                        {% for i in 1|to_list:5 %}
-                        <span class="fa fa-star {% if i <= item.review.rating %}checked{% endif %}"></span>
-                        {% endfor %}
-                    </div>
-                    <strong>Comment:</strong> {{ item.review.comment }}
-                    {% else %}
-                    <a href="{% url 'submit_review' detail.order.id item.product.id %}" class="btn btn-primary">รีวิวสินค้า</a>
-                    {% endif %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="order_id" value="{{ detail.order.id }}">
+                        <select name="order_status" class="form-control">
+                            {% for status, display in order_status_choices %}
+                            <option value="{{ status }}" {% if detail.order.order_status == status %}selected{% endif %}>{{ display }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-primary mt-2">อัปเดต</button>
+                    </form>
                 </td>
             </tr>
-            {% endfor %}
             {% empty %}
             <tr>
-                <td colspan="9" class="text-center">ไม่มีประวัติการซื้อ</td>
+                <td colspan="7" class="text-center">ไม่มีประวัติการขาย</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
-
-<style>
-    .rating {
-        display: flex;
-        direction: row;
-        justify-content: center;
-    }
-
-    .fa-star {
-        font-size: 24px;
-        color: #ddd;
-    }
-
-    .fa-star.checked {
-        color: #ffc107;
-    }
-</style>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 {% endblock %}

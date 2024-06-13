@@ -2,9 +2,7 @@ from django.db import models
 from authenticate.models import Account
 from products.models import Product
 from django.utils.translation import gettext_lazy as _
-from django.db import models
 from django.contrib.auth.models import User
-from django.db import models
 from django.utils import timezone
 
 
@@ -36,8 +34,14 @@ class Order(models.Model):
     ]
     delivery_method = models.CharField(max_length=20, choices=delivery_method_choices)
 
+    def total_price(self):
+        total = sum(item.product.price * item.quantity for item in self.order_items.all())
+        shipping_fee = sum(item.quantity for item in self.order_items.all()) * 20 if self.delivery_method == 'delivery' else 0
+        return total + shipping_fee
+
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
+
 
 class Cart(models.Model):
     account = models.ForeignKey(Account, on_delete=models.CASCADE)

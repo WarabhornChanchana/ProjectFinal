@@ -2,8 +2,6 @@ from django import forms
 from django.forms import DateTimeInput
 from .models import PaymentUpload
 from django import forms
-from .models import Order
-from django import forms
 from .models import Order, AdminOrder
 from .models import Review
 
