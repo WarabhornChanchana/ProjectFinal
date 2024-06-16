@@ -1,0 +1,13 @@
+{% extends "app_general/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>แก้ไขรูปโปสเตอร์</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">บันทึกการเปลี่ยนแปลง</button>
+        <a href="{% url 'home' %}" class="btn btn-secondary">ยกเลิก</a>
+    </form>
+</div>
+{% endblock %}

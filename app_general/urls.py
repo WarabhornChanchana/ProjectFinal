@@ -9,6 +9,8 @@ from . import views
 urlpatterns = [
     path('', views.home, name='home'),
     path('add_slide/', views.add_slide, name='add_slide'),
+    path('edit_slide/<int:slide_id>/', views.edit_slide, name='edit_slide'),
+    path('delete_slide/<int:slide_id>/', views.delete_slide, name='delete_slide'),
     path('admin_order/', views.admin_order, name='admin_order'),
     path('admin_dashboard/', views.admin_dashboard, name='admin_dashboard'),
 ]

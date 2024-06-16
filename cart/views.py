@@ -125,12 +125,6 @@ def upload_payment(request):
 
 
 
-def error_view(request):
-    return render(request, 'cart/error.html', {
-        'message': 'There was an error processing your request.'
-    })
-
-
 def send_payment_notification(payment_upload):
     subject = 'New Payment Slip Uploaded'
     email_from = settings.EMAIL_HOST_USER

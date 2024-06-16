@@ -1,0 +1,67 @@
+{% extends "app_general/base.html" %}
+
+{% block extra_css %}
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f8f9fa;
+        color: #343a40;
+    }
+
+    .container {
+        max-width: 600px;
+        margin: auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .header h1 {
+        font-size: 24px;
+        font-weight: bold;
+        color: #dc3545;
+    }
+
+    .btn-container {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .btn-custom {
+        padding: 10px 20px;
+        text-decoration: none;
+        color: white;
+        border-radius: 5px;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="header">
+        <h1>ยืนยันการลบรูปโปสเตอร์</h1>
+    </div>
+    <p>คุณแน่ใจหรือไม่ว่าต้องการลบรูปโปสเตอร์นี้?</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="btn-container">
+            <button type="submit" class="btn btn-danger btn-custom">ลบ</button>
+            <a href="{% url 'home' %}" class="btn btn-secondary btn-custom">ยกเลิก</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

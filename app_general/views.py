@@ -6,7 +6,7 @@ from .models import Slide
 from cart.models import Review, Order
 from datetime import timedelta
 from cart.models import Order, Review
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.timezone import make_aware
@@ -50,7 +50,6 @@ def admin_dashboard(request):
     }
     return render(request, 'app_general/admin_dashboard.html', context)
 
-@login_required
 def home(request):
     slides = Slide.objects.all()
     reviews = Review.objects.order_by('-created_at')[:10]  # Latest 10 reviews for the homepage
@@ -81,6 +80,8 @@ def admin_order(request):
     return render(request, 'app_general/admin_order.html', {'payments': payments})
 
 
+# ฟังก์ชันสำหรับการเพิ่มรูปโปสเตอร์
+@login_required
 def add_slide(request):
     if request.method == 'POST':
         form = SlideForm(request.POST, request.FILES)
@@ -90,3 +91,25 @@ def add_slide(request):
     else:
         form = SlideForm()
     return render(request, 'app_general/add_slide.html', {'form': form})
+
+# ฟังก์ชันสำหรับการแก้ไขรูปโปสเตอร์
+@login_required
+def edit_slide(request, slide_id):
+    slide = get_object_or_404(Slide, id=slide_id)
+    if request.method == 'POST':
+        form = SlideForm(request.POST, request.FILES, instance=slide)
+        if form.is_valid():
+            form.save()
+            return redirect('home')  # เปลี่ยน 'home' เป็นชื่อ URL ของหน้าแรกของคุณ
+    else:
+        form = SlideForm(instance=slide)
+    return render(request, 'app_general/edit_slide.html', {'form': form})
+
+# ฟังก์ชันสำหรับการลบรูปโปสเตอร์
+@login_required
+def delete_slide(request, slide_id):
+    slide = get_object_or_404(Slide, id=slide_id)
+    if request.method == 'POST':
+        slide.delete()
+        return redirect('home')  # เปลี่ยน 'home' เป็นชื่อ URL ของหน้าแรกของคุณ
+    return render(request, 'app_general/confirm_delete.html', {'slide': slide})

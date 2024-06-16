@@ -8,6 +8,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import ProfileEditForm, AddressEditForm
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+from .forms import RegisterForm, AddressForm, LoginForm, ProfileEditForm, AddressEditForm
+from .models import Account
 
 class RegistrationWizard(SessionWizardView):
     form_list = [RegisterForm, AddressForm]
@@ -56,8 +61,8 @@ def login_user(request):
     return render(request, 'authenticate/login.html', {'loginform': form})
 
 def logout_user(request):
-    auth.logout(request)
-    return redirect('home')
+    logout(request)
+    return redirect('login')
 
 
 @login_required

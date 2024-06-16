@@ -99,7 +99,6 @@
         background-color: #218838;
     }
 
-    /* Reviews Section */
     .reviews-section {
         margin-top: 40px;
     }
@@ -121,7 +120,6 @@
         margin: 5px 0;
     }
 
-    /* Contact Section */
     .contact-section {
         margin-top: 40px;
         padding: 20px;
@@ -137,7 +135,6 @@
         margin: 5px 0;
     }
 
-    /* Map Section */
     .map-section {
         margin-top: 40px;
     }
@@ -147,6 +144,27 @@
         height: 400px;
         border: none;
         border-radius: 10px;
+    }
+
+    .admin-slide-actions {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        gap: 5px;
+    }
+
+    .admin-slide-actions a {
+        padding: 5px 10px;
+        color: white;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 12px;
+    }
+
+    .admin-slide-actions a:hover {
+        background-color: rgba(0, 0, 0, 0.8);
     }
 </style>
 {% endblock %}
@@ -178,31 +196,33 @@
     </li>
     {% endif %}
 
-
-
     <div class="slideshow-container mt-5">
         <div class="static-slides">
             {% for slide in slides %}
                 <div class="static-slide">
                     <img src="{{ slide.image.url }}" alt="{{ slide.caption }}">
                     <div class="caption">{{ slide.caption }}</div>
+                    {% if user.is_authenticated and user.account.role == "admin" %}
+                        <div class="admin-slide-actions">
+                            <a href="{% url 'edit_slide' slide.id %}">แก้ไข</a>
+                            <a href="{% url 'delete_slide' slide.id %}" onclick="return confirm('คุณแน่ใจหรือไม่ว่าต้องการลบรูปภาพนี้?');">ลบ</a>
+                        </div>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>
     </div>
 
-
     <div class="contact-section mt-5">
         <h2>ช่องทางการติดต่อ</h2>
         <p><strong>ที่อยู่:</strong> 25/4 ตำบล:ไร่น้อย อำเภอ:เมือง จังหวัด:อุบลราชธานี</p>
         <p><strong>โทร:</strong> 012-345-6789</p>
-        <p><strong>ไลน์</strong> onlinemarketplace</p>
+        <p><strong>ไลน์:</strong> onlinemarketplace</p>
     </div>
-
 
     <div class="map-section mt-5">
         <h2>แผนที่ไปยังร้าน</h2>
-        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15395.738334492064!2d104.81965806193556!3d15.271362864868449!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3116881a682ad541%3A0xf33bf8de89a4748c!2z4Lir4Lih4Li54LmIIDE1IOC4reC4s-C5gOC4oOC4reC5gOC4oeC4t-C4reC4h-C4reC4uOC4muC4peC4o-C4suC4iuC4mOC4suC4meC4tSDguK3guLjguJrguKXguKPguLLguIrguJjguLLguJnguLUgMzQwMDA!5e0!3m2!1sth!2sth!4v1718206636883!5m2!1sth!2sth" width="60" height="40" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15395.738334492064!2d104.81965806193556!3d15.271362864868449!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3116881a682ad541%3A0xf33bf8de89a4748c!2z4Lir4Lih4Li54LmIIDE1IOC4reC4s-C5gOC4oOC4reC5gOC4oeC4t-C4reC4h-C4reC4uOC4muC4peC4o-C4suC4iuC4mOC4suC4meC4tSDguK3guLjguJrguKXguKPguLLguIrguJjguLLguJnguLUgMzQwMDA!5e0!3m2!1sth!2sth!4v1718206636883!5m2!1sth!2sth" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
     </div>
 </div>
 
@@ -216,6 +236,4 @@
     </div>
     {% endfor %}
 </div>
-
-
 {% endblock %}
