@@ -26,7 +26,6 @@ class RegistrationWizard(SessionWizardView):
         user.last_name = user_form.cleaned_data['last_name']
         password = user_form.cleaned_data['password1'] 
         user.set_password(password) 
-
         user.save()
 
         phone_number = user_form.cleaned_data['phone_number']

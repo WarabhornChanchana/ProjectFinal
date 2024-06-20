@@ -12,7 +12,9 @@ from django.contrib.auth.decorators import login_required
 from django.utils.timezone import make_aware
 from datetime import datetime, timedelta
 from authenticate.models import Account
-from django.db import models 
+from django.db import models
+import json
+from decimal import Decimal
 
 @login_required
 def admin_dashboard(request):
@@ -26,29 +28,31 @@ def admin_dashboard(request):
     reviews = Review.objects.order_by('-created_at')[:10]
     recent_orders = delivered_orders[:10]
 
-
-    start_date = make_aware(datetime.now() - timedelta(days=365)) 
+    start_date = make_aware(datetime.now() - timedelta(days=365))
     monthly_sales_data = delivered_orders.filter(order_date__gte=start_date)
     monthly_sales = {}
     for order in monthly_sales_data:
         month = order.order_date.strftime('%Y-%m')
         if month not in monthly_sales:
-            monthly_sales[month] = 0
+            monthly_sales[month] = Decimal(0)
         monthly_sales[month] += order.total_price()
 
-    monthly_sales = [{'year': k.split('-')[0], 'month': k.split('-')[1], 'total': v} for k, v in monthly_sales.items()]
+    monthly_sales = [{'year': k.split('-')[0], 'month': k.split('-')[1], 'total': float(v)} for k, v in monthly_sales.items()]
 
-    product_ratings = Review.objects.values('product__name').annotate(average_rating=models.Avg('rating'))
-
+    product_ratings = list(Review.objects.values('product__name').annotate(average_rating=models.Avg('rating')))
+    
     context = {
         'total_sales': total_sales,
         'total_reviews': total_reviews,
         'reviews': reviews,
         'recent_orders': recent_orders,
-        'monthly_sales': monthly_sales,
-        'product_ratings': product_ratings,
+        'monthly_sales': json.dumps(monthly_sales),
+        'product_ratings': json.dumps(product_ratings),
     }
     return render(request, 'app_general/admin_dashboard.html', context)
+
+
+
 
 def home(request):
     slides = Slide.objects.all()

@@ -46,6 +46,11 @@
     .monthly-sales-table th {
         background-color: #f8f9fa;
     }
+    .chart-container {
+        width: 100%;
+        height: 400px;
+        margin: 20px 0;
+    }
 </style>
 {% endblock %}
 
@@ -74,24 +79,9 @@
         <div class="col-md-12">
             <div class="card">
                 <h2>ยอดขายรายเดือน</h2>
-                <table class="monthly-sales-table">
-                    <thead>
-                        <tr>
-                            <th>ปี</th>
-                            <th>เดือน</th>
-                            <th>ยอดขายรวม (บาท)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for sale in monthly_sales %}
-                        <tr>
-                            <td>{{ sale.year }}</td>
-                            <td>{{ sale.month }}</td>
-                            <td>{{ sale.total }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="chart-container">
+                    <canvas id="monthlySalesChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -131,24 +121,78 @@
         <div class="col-md-12">
             <div class="card">
                 <h2>คะแนนรีวิวสินค้า</h2>
-                <table class="monthly-sales-table">
-                    <thead>
-                        <tr>
-                            <th>สินค้า</th>
-                            <th>คะแนนเฉลี่ย</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for product_rating in product_ratings %}
-                        <tr>
-                            <td>{{ product_rating.product__name }}</td>
-                            <td>{{ product_rating.average_rating }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="chart-container">
+                    <canvas id="productRatingsChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Data for monthly sales chart
+    var monthlySalesLabels = JSON.parse('{{ monthly_sales|escapejs }}');
+    var monthlySalesData = JSON.parse('{{ monthly_sales|escapejs }}');
+
+    // Prepare data for chart.js
+    var labels = monthlySalesLabels.map(item => item.year + "-" + item.month);
+    var data = monthlySalesData.map(item => item.total);
+
+    // Monthly Sales Chart
+    var ctx = document.getElementById('monthlySalesChart').getContext('2d');
+    var monthlySalesChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'ยอดขายรายเดือน',
+                data: data,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Data for product ratings chart
+    var productRatingsLabels = JSON.parse('{{ product_ratings|escapejs }}');
+    var productRatingsData = JSON.parse('{{ product_ratings|escapejs }}');
+
+    // Prepare data for chart.js
+    var productLabels = productRatingsLabels.map(item => item.product__name);
+    var ratingData = productRatingsData.map(item => item.average_rating);
+
+    // Product Ratings Chart
+    var ctx = document.getElementById('productRatingsChart').getContext('2d');
+    var productRatingsChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: productLabels,
+            datasets: [{
+                label: 'คะแนนรีวิวสินค้า',
+                data: ratingData,
+                backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                borderColor: 'rgba(153, 102, 255, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+
 {% endblock %}
