@@ -2,11 +2,23 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1 class="mb-4">รีวิวสินค้า: {{ product.name }}</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">ส่งรีวิว</button>
-    </form>
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light text-center">
+                    <h3 class="mb-0 text-dark">รีวิวสินค้า: {{ product.name }}</h3>
+                </div>
+                <div class="card-body bg-light">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            {{ form.as_p }}
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">ส่งรีวิว</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

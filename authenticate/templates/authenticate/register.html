@@ -31,7 +31,6 @@
     {% endif %}
     <div class="navigation-buttons">
       {% if wizard.steps.prev %}
-        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.first }}" class="btn btn-secondary">ขั้นตอนแรก</button>
         <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" class="btn btn-primary">ขั้นตอนก่อนหน้า</button>
       {% endif %}
       <input type="submit" value="ส่ง" class="btn btn-success"/>

@@ -56,35 +56,34 @@ def admin_dashboard(request):
 
 def home(request):
     slides = Slide.objects.all()
-    reviews = Review.objects.order_by('-created_at')[:10]  # Latest 10 reviews for the homepage
+    reviews = Review.objects.order_by('-created_at')[:10]
     return render(request, 'app_general/home.html', {'slides': slides, 'reviews': reviews})
 
 
 @login_required
 def admin_order(request):
     try:
-        account = Account.objects.get(user=request.user) # ดึงข้อมูลจากโมเดล Account ที่มีฟิลด์ user ตรงกับผู้ใช้ที่ล็อกอินปัจจุบันและเก็บไว้ในตัวแปร account
+        account = Account.objects.get(user=request.user)
     except Account.DoesNotExist:
         return HttpResponseForbidden("You are not authorized to view this page.")
 
     if account.role != Account.ADMIN:
         return HttpResponseForbidden("You do not have permission to view this page.")
-    payments = PaymentUpload.objects.filter(order__order_status__in=['PENDING', 'PROCESSING']).order_by('-transfer_time')  # ดึงข้อมูลจากโมเดล PaymentUpload ทั้งหมดและเรียงลำดับจากล่าสุดไปเก่าสุดตามฟิลด์ transfer_time และเก็บไว้ในตัวแปร payments
-
+    payments = PaymentUpload.objects.filter(order__order_status__in=['PENDING', 'PROCESSING']).order_by('-transfer_time') 
     if 'delete' in request.POST:
         payment_id = request.POST.get('delete')
         try:
-            payment_to_delete = PaymentUpload.objects.get(id=payment_id)  # ดึงข้อมูลจากโมเดล PaymentUpload ที่มี id ตรงกับ payment_id และเก็บไว้ในตัวแปร payment_to_delete
+            payment_to_delete = PaymentUpload.objects.get(id=payment_id) 
             payment_to_delete.delete()
             messages.success(request, 'Order has been successfully deleted.')
         except ObjectDoesNotExist:
             messages.error(request, "No such payment exists.")
-        return redirect('admin_order')  # Redirect back to the same page to refresh the list
+        return redirect('admin_order') 
 
     return render(request, 'app_general/admin_order.html', {'payments': payments})
 
 
-# ฟังก์ชันสำหรับการเพิ่มรูปโปสเตอร์
+
 @login_required
 def add_slide(request):
     if request.method == 'POST':
@@ -96,7 +95,6 @@ def add_slide(request):
         form = SlideForm()
     return render(request, 'app_general/add_slide.html', {'form': form})
 
-# ฟังก์ชันสำหรับการแก้ไขรูปโปสเตอร์
 @login_required
 def edit_slide(request, slide_id):
     slide = get_object_or_404(Slide, id=slide_id)
@@ -104,16 +102,15 @@ def edit_slide(request, slide_id):
         form = SlideForm(request.POST, request.FILES, instance=slide)
         if form.is_valid():
             form.save()
-            return redirect('home')  # เปลี่ยน 'home' เป็นชื่อ URL ของหน้าแรกของคุณ
+            return redirect('home')
     else:
         form = SlideForm(instance=slide)
     return render(request, 'app_general/edit_slide.html', {'form': form})
 
-# ฟังก์ชันสำหรับการลบรูปโปสเตอร์
 @login_required
 def delete_slide(request, slide_id):
     slide = get_object_or_404(Slide, id=slide_id)
     if request.method == 'POST':
         slide.delete()
-        return redirect('home')  # เปลี่ยน 'home' เป็นชื่อ URL ของหน้าแรกของคุณ
+        return redirect('home') 
     return render(request, 'app_general/confirm_delete.html', {'slide': slide})

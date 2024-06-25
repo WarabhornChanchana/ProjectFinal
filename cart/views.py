@@ -34,7 +34,7 @@ def cartdisplay(request):
     shipping_fee_per_item = 20 
 
     if request.method == 'POST': 
-        delivery_method = request.POST.get('delivery_method', 'pickup')  # รับค่าจากฟอร์ม # รับค่าจากฟอร์มวิธีการจัดส่ง ค่าเริ่มต้นเป็น 'pickup' ถ้าไม่ได้ระบุ
+        delivery_method = request.POST.get('delivery_method', 'pickup') 
         product_id = request.POST.get('product_id')
         quantity = int(request.POST.get('quantity', 0))
 
@@ -61,13 +61,13 @@ def cartdisplay(request):
     total_price = 0  
     total_quantity = 0 
     for item in cart_items:
-        item.total_price = item.quantity * item.product.price # คำนวณราคารวมของแต่ละสินค้า
-        total_price += item.total_price # เพิ่มราคารวมของสินค้าเข้าในราคารวมของตะกร้า
-        total_quantity += item.quantity # เพิ่มจำนวนสินค้าของสินค้าเข้าในจำนวนสินค้าทั้งหมดในตะกร้า
+        item.total_price = item.quantity * item.product.price 
+        total_price += item.total_price 
+        total_quantity += item.quantity 
 
     delivery_method = cart.delivery_method if hasattr(cart, 'delivery_method') else 'pickup'
     shipping_fee = total_quantity * shipping_fee_per_item if delivery_method == 'delivery' else 0
-    total_price += shipping_fee # เพิ่มค่าจัดส่งเข้าในราคารวม
+    total_price += shipping_fee 
 
     return render(request, 'cart/displaycart.html', {
         'cart_items': cart_items, 
@@ -284,7 +284,6 @@ def update_order_status(request, order_id):
             messages.error(request, 'ไม่สามารถอัปเดตสถานะคำสั่งซื้อได้.')
     return redirect('purchase_history')
 
-# ฟังก์ชันนี้แสดงประวัติการซื้อ
 @login_required
 def purchase_history(request):
     orders = Order.objects.filter(user=request.user).order_by('-order_date')

@@ -6,6 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.db.models import F
 from decimal import Decimal
+from django.db.models import Q
 
 def product(request):
     categories = Category.objects.all()
@@ -59,7 +60,6 @@ def deleteProduct(request, pk):
     product.delete()
     return redirect('products')
 
-from django.db.models import Q
 
 def product_search(request):
     query = request.GET.get('q', '')
@@ -72,7 +72,6 @@ def product_search(request):
         except Account.DoesNotExist:
             pass
 
-    # Build the query based on both name and category
     search_filter = Q(name__icontains=query)
     if category_id:
         search_filter &= Q(category__id=category_id)
