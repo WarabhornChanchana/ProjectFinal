@@ -50,6 +50,9 @@ def cartdisplay(request):
                     cart_item.save()
                     product.stock_quantity -= quantity
                     product.save()
+
+                else:
+                    messages.error(request, f"สินค้าหมดสต็อก: {product.name}")
             except Product.DoesNotExist:
                 pass  
         else:

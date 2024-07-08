@@ -69,18 +69,11 @@ def admin_order(request):
 
     if account.role != Account.ADMIN:
         return HttpResponseForbidden("You do not have permission to view this page.")
-    payments = PaymentUpload.objects.filter(order__order_status__in=['PENDING', 'PROCESSING']).order_by('-transfer_time') 
-    if 'delete' in request.POST:
-        payment_id = request.POST.get('delete')
-        try:
-            payment_to_delete = PaymentUpload.objects.get(id=payment_id) 
-            payment_to_delete.delete()
-            messages.success(request, 'Order has been successfully deleted.')
-        except ObjectDoesNotExist:
-            messages.error(request, "No such payment exists.")
-        return redirect('admin_order') 
+
+    payments = PaymentUpload.objects.filter(order__order_status__in=['PENDING', 'PROCESSING']).order_by('-transfer_time')
 
     return render(request, 'app_general/admin_order.html', {'payments': payments})
+
 
 
 

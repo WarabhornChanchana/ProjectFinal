@@ -186,7 +186,6 @@
     {% if user.is_authenticated and user.account.role == "admin" %}
         <div class="button-container">
             <a href="{% url 'add_slide' %}" class="btn-custom">เพิ่มรูปภาพหน้า Home</a>
-            <a href="{% url 'admin_order' %}" class="btn-custom">คำสั่งซื้อ</a>
         </div>
     {% endif %}
     
